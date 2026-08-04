@@ -7,8 +7,9 @@ from . import __version__
 from .models import FieldResult, RecognitionResult
 from .mrz import normalize_lines, parse_td3, repair_line2
 from .ocr import join_visual_lines, recognize
+from .structured import build_passport_data
 from .vision import decode_image, mrz_variants, normalize, quality
-from .viz import extract_viz
+from .viz import audit_ocr_mapping, extract_viz, infer_country_fields
 
 SUPPORTED = {"CHN", "UZB", "RUS", "TUR", "KAZ", "TJK"}
 
@@ -30,17 +31,26 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     q = quality(original)
     normalized = normalize(original)
     candidates: list[tuple[list[str], float, list[dict]]] = []
+    raw_mrz_candidates: list[tuple[list[str], float]] = []
     best_crop = None
     # Full-page OCR is evidence for the operator even when TD3 parsing fails.
     all_ocr = recognize(normalized)
     viz_fields, full_text = extract_viz(all_ocr)
     full_visual_rows = join_visual_lines(all_ocr)
+    raw_rows = [row for row in full_visual_rows if "<" in row["text"] and len(row["text"].replace(" ", "")) >= 25]
+    if len(raw_rows) >= 2:
+        selected = raw_rows[-2:]
+        raw_mrz_candidates.append(([row["text"] for row in selected], sum(row["score"] for row in selected) / 2))
     full_lines = normalize_lines([row["text"] for row in full_visual_rows])
     if len(full_lines) == 2:
         candidates.append((full_lines, sum(row["score"] for row in full_visual_rows) / max(len(full_visual_rows), 1), all_ocr))
     for variant in mrz_variants(normalized):
         rows = recognize(variant)
         visual_rows = join_visual_lines(rows)
+        raw_rows = [row for row in visual_rows if "<" in row["text"] and len(row["text"].replace(" ", "")) >= 25]
+        if len(raw_rows) >= 2:
+            selected = raw_rows[-2:]
+            raw_mrz_candidates.append(([row["text"] for row in selected], sum(row["score"] for row in selected) / 2))
         lines = normalize_lines([r["text"] for r in visual_rows])
         if len(lines) == 2:
             mean_score = sum(r["score"] for r in visual_rows) / max(len(visual_rows), 1)
@@ -59,9 +69,11 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     reason_codes = list(q.reason_codes)
     fields = {}
     document: dict[str, Any] = {"type": "unknown", "issuing_state": country_hint if country_hint != "AUTO" else None, "template": "unknown"}
-    mrz: dict[str, Any] = {"lines": [], "format": None, "checks": {}, "repairs": repairs}
+    best_raw_mrz = max(raw_mrz_candidates, key=lambda item: item[1])[0] if raw_mrz_candidates else []
+    mrz: dict[str, Any] = {"lines": best_raw_mrz, "format": "raw" if best_raw_mrz else None, "checks": {}, "repairs": repairs}
     if parsed:
         state = parsed["issuing_state"]
+        viz_fields = infer_country_fields(all_ocr, viz_fields, state)
         confidence = min(.99, .70 + .055 * sum(parsed["checks"].values()))
         fields = _fields(parsed, confidence)
         document = {"type": "TD3", "issuing_state": state, "template": f"{state}/generic_td3"}
@@ -74,7 +86,9 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
         status = "accepted" if parsed["all_required_valid"] and not any(x in reason_codes for x in ("COUNTRY_HINT_MISMATCH", "UNSUPPORTED_ISSUING_STATE")) else "review"
         if q.status == "retry" and not parsed["all_required_valid"]: status = "retry_capture"
     else:
-        reason_codes.append("MRZ_NOT_FOUND")
+        if country_hint != "AUTO":
+            viz_fields = infer_country_fields(all_ocr, viz_fields, country_hint)
+        reason_codes.append("MRZ_INVALID_FORMAT" if best_raw_mrz else "MRZ_NOT_FOUND")
         status = "retry_capture"
     # MRZ remains authoritative for critical fields; VIZ is retained as evidence.
     for key, viz_value in viz_fields.items():
@@ -82,4 +96,6 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
             fields[key] = viz_value
         elif fields[key].value and viz_value.value and str(fields[key].value).casefold() != str(viz_value.value).casefold():
             reason_codes.append(f"MRZ_VIZ_{key.upper()}_DIFF")
-    return RecognitionResult(status, document, fields, mrz, q, {"reason_codes": list(dict.fromkeys(reason_codes)), "note": "OCR проверяет структуру данных, но не подлинность документа", "detected_objects": len(all_ocr), "structured_viz_fields": len(viz_fields)}, {"engine": "rapidocr_onnxruntime", "app_version": __version__, "model_manifest": "2026-07-31.2", "local_processing": True}, int((time.perf_counter() - started) * 1000), viz_fields, full_text, normalized, best_crop, all_ocr)
+    ocr_mapping = audit_ocr_mapping(all_ocr, fields)
+    structured = build_passport_data(fields, document, ocr_mapping)
+    return RecognitionResult(status, document, fields, mrz, q, {"reason_codes": list(dict.fromkeys(reason_codes)), "note": "OCR проверяет структуру данных, но не подлинность документа", "detected_objects": len(all_ocr), "structured_viz_fields": len(viz_fields)}, {"engine": "rapidocr_onnxruntime", "app_version": __version__, "model_manifest": "2026-07-31.2", "local_processing": True}, int((time.perf_counter() - started) * 1000), structured, viz_fields, full_text, normalized, best_crop, all_ocr)

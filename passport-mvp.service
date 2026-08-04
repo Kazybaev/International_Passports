@@ -1,0 +1,14 @@
+[Unit]
+Description=Passport Lens Streamlit MVP
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/zhanysh/EO/passport
+ExecStart=/home/zhanysh/EO/passport/.venv/bin/streamlit run app.py --server.headless=true --server.address=0.0.0.0 --server.port=8501
+Restart=always
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

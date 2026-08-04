@@ -1,0 +1,96 @@
+{
+  "methodology": {
+    "mrz": "Strict ICAO TD3 checksum pass rate; proxy for correctness without ground-truth transcription.",
+    "overall": "OCR engine mean confidence and structured-field yield; not true character accuracy without labels."
+  },
+  "overall": {
+    "images": 60,
+    "mrz_detection_rate_pct": 5.0,
+    "mrz_strict_pass_rate_pct": 0.0,
+    "mrz_all_five_pass_rate_pct": 0.0,
+    "mean_mrz_checksum_score_pct": 0.0,
+    "accepted_rate_pct": 0.0,
+    "mean_ocr_confidence_pct": 84.12,
+    "mean_structured_fields": 0.63,
+    "mean_processing_ms": 2277
+  },
+  "by_country": {
+    "CHN": {
+      "images": 10,
+      "mrz_detection_rate_pct": 0.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 82.84,
+      "mean_structured_fields": 0.3,
+      "mean_processing_ms": 2100
+    },
+    "KAZ": {
+      "images": 10,
+      "mrz_detection_rate_pct": 10.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 82.41,
+      "mean_structured_fields": 0.7,
+      "mean_processing_ms": 2326
+    },
+    "RUS": {
+      "images": 10,
+      "mrz_detection_rate_pct": 10.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 83.22,
+      "mean_structured_fields": 0.5,
+      "mean_processing_ms": 2151
+    },
+    "TJK": {
+      "images": 10,
+      "mrz_detection_rate_pct": 10.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 83.35,
+      "mean_structured_fields": 0.8,
+      "mean_processing_ms": 2064
+    },
+    "TUR": {
+      "images": 10,
+      "mrz_detection_rate_pct": 0.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 84.0,
+      "mean_structured_fields": 0.7,
+      "mean_processing_ms": 2826
+    },
+    "UZB": {
+      "images": 10,
+      "mrz_detection_rate_pct": 0.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 88.91,
+      "mean_structured_fields": 0.8,
+      "mean_processing_ms": 2198
+    }
+  },
+  "reason_code_counts": {
+    "LOW_RESOLUTION": 60,
+    "MRZ_NOT_FOUND": 57,
+    "UNSUPPORTED_ISSUING_STATE": 3,
+    "COUNTRY_HINT_MISMATCH": 3,
+    "MRZ_DOCUMENT_NUMBER_CHECKSUM_FAILED": 3,
+    "MRZ_BIRTH_DATE_CHECKSUM_FAILED": 3,
+    "MRZ_EXPIRY_DATE_CHECKSUM_FAILED": 3,
+    "MRZ_OPTIONAL_DATA_CHECKSUM_FAILED": 3,
+    "MRZ_COMPOSITE_CHECKSUM_FAILED": 3
+  }
+}

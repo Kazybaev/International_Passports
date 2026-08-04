@@ -33,6 +33,7 @@ class RecognitionResult:
     decision: dict[str, Any]
     provenance: dict[str, Any]
     processing_ms: int
+    structured: dict[str, Any] = field(default_factory=dict)
     viz_fields: dict[str, FieldResult] = field(default_factory=dict)
     full_text: list[str] = field(default_factory=list)
     normalized_image: Any = field(default=None, repr=False)

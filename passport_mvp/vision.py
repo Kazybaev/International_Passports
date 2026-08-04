@@ -33,20 +33,26 @@ def quality(image: np.ndarray) -> QualityResult:
 
 
 def normalize(image: np.ndarray) -> np.ndarray:
+    # Passport data pages are commonly portrait-oriented while their text and MRZ
+    # are already horizontal. Rotating solely from the aspect ratio destroys OCR.
+    # EXIF orientation has already been applied in decode_image().
     h, w = image.shape[:2]
-    if w < h: image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
     max_width = 2200
     if image.shape[1] > max_width:
         scale = max_width / image.shape[1]
         image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    elif image.shape[1] < 1400:
+        # RapidOCR loses MRZ glyphs on the 300–400 px thumbnails used by the
+        # benchmark. Cubic upscaling gives the recognizer enough character pixels.
+        scale = 1400 / image.shape[1]
+        image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
     return image
 
 
 def mrz_variants(image: np.ndarray) -> list[np.ndarray]:
     h, _ = image.shape[:2]
-    crop = image[int(h * .62):h, :]
+    crop = image[int(h * .65):h, :]
     gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
     gray = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray)
     binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 41, 13)
     return [crop, cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR), cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)]
-

@@ -1,0 +1,90 @@
+{
+  "methodology": {
+    "mrz": "Strict ICAO TD3 checksum pass rate; proxy for correctness without ground-truth transcription.",
+    "overall": "OCR engine mean confidence and structured-field yield; not true character accuracy without labels."
+  },
+  "overall": {
+    "images": 300,
+    "mrz_detection_rate_pct": 100.0,
+    "mrz_strict_pass_rate_pct": 0.0,
+    "mrz_all_five_pass_rate_pct": 0.0,
+    "mean_mrz_checksum_score_pct": 0.0,
+    "accepted_rate_pct": 0.0,
+    "mean_ocr_confidence_pct": 96.13,
+    "mean_structured_fields": 10.1,
+    "mean_processing_ms": 14674
+  },
+  "by_country": {
+    "CHN": {
+      "images": 50,
+      "mrz_detection_rate_pct": 100.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 96.89,
+      "mean_structured_fields": 10.02,
+      "mean_processing_ms": 14692
+    },
+    "KAZ": {
+      "images": 50,
+      "mrz_detection_rate_pct": 100.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 95.41,
+      "mean_structured_fields": 10.02,
+      "mean_processing_ms": 14352
+    },
+    "RUS": {
+      "images": 50,
+      "mrz_detection_rate_pct": 100.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 95.52,
+      "mean_structured_fields": 10.56,
+      "mean_processing_ms": 14864
+    },
+    "TJK": {
+      "images": 50,
+      "mrz_detection_rate_pct": 100.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 94.54,
+      "mean_structured_fields": 10.0,
+      "mean_processing_ms": 14672
+    },
+    "TUR": {
+      "images": 50,
+      "mrz_detection_rate_pct": 100.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 97.2,
+      "mean_structured_fields": 9.98,
+      "mean_processing_ms": 15006
+    },
+    "UZB": {
+      "images": 50,
+      "mrz_detection_rate_pct": 100.0,
+      "mrz_strict_pass_rate_pct": 0.0,
+      "mrz_all_five_pass_rate_pct": 0.0,
+      "mean_mrz_checksum_score_pct": 0.0,
+      "accepted_rate_pct": 0.0,
+      "mean_ocr_confidence_pct": 97.21,
+      "mean_structured_fields": 10.02,
+      "mean_processing_ms": 14455
+    }
+  },
+  "reason_code_counts": {
+    "MRZ_INVALID_FORMAT": 300,
+    "EXCESSIVE_GLARE": 179,
+    "OVEREXPOSED": 1
+  }
+}
