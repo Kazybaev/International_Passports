@@ -29,7 +29,12 @@ def normalize_lines(lines: list[str]) -> list[str]:
     cleaned = [clean_line(x) for x in lines if len(clean_line(x)) >= 20]
     exact = [x for x in cleaned if len(x) == 44]
     if len(exact) >= 2:
-        return exact[-2:]
+        selected = exact[-2:]
+        passport_line = next((line for line in selected if line.startswith("P")), None)
+        if passport_line:
+            other = next(line for line in selected if line is not passport_line)
+            return [passport_line, other]
+        return selected
     joined = "".join(cleaned)
     if len(joined) >= 88:
         # Favor the final 88 characters: OCR often prefixes labels above the MRZ.
@@ -54,6 +59,43 @@ def _date_yyMMdd(value: str, kind: str) -> str | None:
 
 def _name(value: str) -> str:
     return " ".join(part for part in value.replace("<", " ").split() if part)
+
+
+def extract_raw_identity(lines: list[str]) -> dict[str, str]:
+    """Recover names from a readable passport-like MRZ even if TD3 checks fail."""
+    if not lines:
+        return {}
+    line = clean_line(lines[0])
+    match = re.search(r"(?:^|<)P<?[A-Z]{3}(.+)$", line)
+    if not match or "<<" not in match.group(1):
+        return {}
+    surname, given_names = match.group(1).split("<<", 1)
+    result = {
+        "surname": _name(surname),
+        "given_names": _name(given_names),
+    }
+    return {key: value for key, value in result.items() if value}
+
+
+def extract_raw_document(lines: list[str]) -> dict[str, str]:
+    """Recover core TD3-positioned values without claiming checksum validity."""
+    cleaned = [clean_line(line) for line in lines]
+    name_line = next((line for line in cleaned if line.startswith("P")), None)
+    data_line = next((line for line in cleaned if re.match(
+        r"^[A-Z0-9<]{9}[0-9O][A-Z<]{3}\d{6}[0-9O][MFX<]\d{6}", line
+    )), None)
+    if not name_line or not data_line:
+        return {}
+    result = {
+        "document_type": "TD3",
+        "issuing_state": name_line[2:5],
+        "document_number": data_line[0:9].replace("<", ""),
+        "nationality": data_line[10:13].replace("<", ""),
+        "birth_date": _date_yyMMdd(data_line[13:19], "birth") or "",
+        "sex": data_line[20].replace("<", "X"),
+        "expiry_date": _date_yyMMdd(data_line[21:27], "expiry") or "",
+    }
+    return {key: value for key, value in result.items() if value}
 
 
 def _valid(value: str, digit: str) -> bool:
@@ -122,4 +164,3 @@ def repair_line2(line: str, max_ambiguous: int = 8) -> tuple[str, list[dict]]:
         score = sum(parsed["checks"].values()) * 10 - len(changes)
         if best is None or score > best[0]: best = (score, candidate, changes)
     return (best[1], best[2]) if best and best[0] >= 39 else (line, [])
-

@@ -46,3 +46,8 @@ class RecognitionResult:
         data.pop("mrz_crop", None)
         data.pop("ocr_lines", None)
         return data
+
+    def to_compact_dict(self) -> dict[str, Any]:
+        from .structured import build_compact_json
+
+        return build_compact_json(self.structured)

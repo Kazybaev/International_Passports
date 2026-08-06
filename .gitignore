@@ -4,4 +4,27 @@ __pycache__/
 .pytest_cache/
 .streamlit/secrets.toml
 artifacts/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local OCR/model artifacts and generated benchmark runs
+*.onnx
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+CHN/
+KAZ/
+RUS/
+TJK/
+TUR/
+UZB/
+benchmark_comparison/
+benchmark_results_*/

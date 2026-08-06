@@ -34,6 +34,9 @@ def build_passport_data(fields: dict[str, FieldResult], document: dict[str, Any]
     patronymic = _value(fields, "patronymic")
     full_name = _value(fields, "full_name") or " ".join(value for value in (surname, given_names, patronymic) if value) or None
     country_code = document.get("issuing_state")
+    if not country_code or country_code == "AUTO":
+        nationality = (_value(fields, "nationality", "issuing_state_viz") or "").upper()
+        country_code = next((code for code in COUNTRIES if code != "AUTO" and code in nationality), None)
     recognized_objects = [{
         "index": row.get("№"),
         "text": row.get("Распознанный объект"),
@@ -44,7 +47,7 @@ def build_passport_data(fields: dict[str, FieldResult], document: dict[str, Any]
     return {
         "schema_version": "2.0",
         "document": {
-            "type": document.get("type"),
+            "type": document.get("type") if document.get("type") not in {None, "unknown"} else _value(fields, "document_type_viz"),
             "passport_number": _value(fields, "document_number"),
             "issuing_country_code": country_code,
             "issuing_country": COUNTRIES.get(country_code, {}).get("name"),
@@ -72,4 +75,18 @@ def build_passport_data(fields: dict[str, FieldResult], document: dict[str, Any]
         "field_evidence": _evidence(fields),
         "recognized_objects": recognized_objects,
         "unmapped_objects": [item for item in recognized_objects if not item["mapped_keys"]],
+    }
+
+
+def build_compact_json(structured: dict[str, Any]) -> dict[str, Any]:
+    """Return the smallest user-facing payload without technical OCR data."""
+    document = structured.get("document", {})
+    holder = structured.get("holder", {})
+    return {
+        "fio": holder.get("full_name"),
+        "birth_date": holder.get("birth_date"),
+        "country": document.get("issuing_country"),
+        "document_type": document.get("type"),
+        "document_number": document.get("passport_number"),
+        "inn": holder.get("tax_id") or holder.get("personal_id"),
     }

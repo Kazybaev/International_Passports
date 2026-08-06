@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from datetime import datetime
 from difflib import SequenceMatcher
 from typing import Any
 
@@ -12,17 +13,17 @@ from .models import FieldResult
 ALIASES = {
     "full_name": ["full name", "holder name", "name of holder", "фио", "ф.и.о", "фамилия имя отчество", "полное имя", "to'liq ism", "to‘liq ism", "adı soyadı", "ad soyad", "толық аты-жөні", "ному насаб", "姓名"],
     "document_number": ["passport no", "passport number", "document no", "номер паспорта", "паспорт №", "pasaport no", "pasaport numarası", "pasport raqami", "құжат №", "护照号码", "护照号"],
-    "surname_viz": ["surname", "last name", "фамилия", "familiya", "soyadı", "тегі", "насаб", "姓"],
-    "given_names_viz": ["given names", "given name", "имя", "имена", "name", "ismi", "adı", "ism", "аты", "ном", "名"],
-    "patronymic": ["отчество", "otasining ismi", "patronymic"],
+    "surname_viz": ["surname", "surnane", "last name", "фамилия", "familiya", "famillya", "soyadı", "тегі", "насаб", "姓"],
+    "given_names_viz": ["given names", "given name", "имя", "имена", "ismi", "isml", "adı", "ism", "аты", "ном", "名"],
+    "patronymic": ["отчество", "otasining ismi", "otatieing ismi", "patronymic", "patronyg"],
     "nationality": ["nationality", "гражданство", "fuqaroligi", "uyruğu", "ұлты", "шаҳрвандӣ", "国籍"],
-    "birth_date": ["date of birth", "birth date", "дата рождения", "tug'ilgan sana", "doğum tarihi", "туған күні", "санаи таваллуд", "出生日期"],
+    "birth_date": ["date of birth", "birth date", "oatecf bith", "дата рождения", "tug'ilgan sana", "tuggan sanasi", "doğum tarihi", "туған күні", "санаи таваллуд", "出生日期"],
     "birth_place": ["place of birth", "место рождения", "tug'ilgan joyi", "doğum yeri", "туған жері", "ҷои таваллуд", "出生地点", "出生地"],
     "sex": ["sex", "gender", "пол", "jinsi", "cinsiyeti", "жынысы", "ҷинс", "性别"],
     "issue_date": ["date of issue", "issue date", "дата выдачи", "berilgan sana", "veriliş tarihi", "берілген күні", "санаи дода шудан", "签发日期"],
     "expiry_date": ["date of expiry", "expiry date", "valid until", "срок действия", "действителен до", "amal qilish muddati", "son geçerlilik", "жарамдылық мерзімі", "эътибор дорад то", "有效期至", "有效期"],
     "issuing_authority": ["authority", "issued by", "орган выдачи", "кем выдан", "bergan organ", "veren makam", "берген орган", "мақомот", "签发机关", "签发地点"],
-    "personal_number": ["personal no", "personal number", "personal code", "identity no", "identity number", "identification no", "national id", "id no", "персональный номер", "личный номер", "идентификационный номер", "идентификация №", "shaxsiy raqami", "shaxsiy raqam", "pinfl", "пинфл", "jshshir", "жшшір", "tc kimlik no", "t.c. kimlik no", "kimlik no", "iin", "иин", "жсн", "身份证号码", "公民身份号码"],
+    "personal_number": ["personal no", "personal number", "personal code", "identity no", "identity number", "identification no", "national id", "id no", "1o number", "персональный номер", "личный номер", "идентификационный номер", "идентификация №", "shaxsiy raqami", "shaxsiy raqam", "shaxsly ragam", "pinfl", "пинфл", "jshshir", "жшшір", "tc kimlik no", "t.c. kimlik no", "kimlik no", "iin", "иин", "жсн", "身份证号码", "公民身份号码"],
     "tax_number": ["tax identification number", "taxpayer identification number", "tax id", "tax number", "tin", "inn", "i n n", "инн", "и н н", "инн / inn", "стир", "stir", "налоговый номер", "идентификационный номер налогоплательщика", "солиқ тўловчининг идентификация рақами", "soliq raqami", "солиқ рақами", "vergi kimlik no", "vergi numarası", "салық нөмірі"],
     "issue_place": ["place of issue", "место выдачи", "berilgan joyi", "veriliş yeri", "берілген жері", "ҷои дода шудан", "签发地点"],
     "authority_code": ["authority code", "код подразделения", "код органа", "bergan organ kodi", "makam kodu", "орган коды"],
@@ -79,11 +80,13 @@ def _inline_value(text: str, alias: str, field: str) -> str:
     return tail if len(tail) >= 2 and tail not in same_field_labels else ""
 
 
-def _near_value(label: dict[str, Any], items: list[dict[str, Any]], excluded: set[int]) -> tuple[dict[str, Any] | None, float]:
+def _near_value(field: str, label: dict[str, Any], items: list[dict[str, Any]], excluded: set[int]) -> tuple[dict[str, Any] | None, float]:
     lx1, ly1, lx2, ly2 = _bounds(label); lh = max(ly2 - ly1, 1)
     best: tuple[float, dict[str, Any]] | None = None
     for idx, item in enumerate(items):
         if item is label or idx in excluded: continue
+        if not _valid_candidate(field, str(item.get("text", ""))):
+            continue
         x1, y1, x2, y2 = _bounds(item); h = max(y2 - y1, 1)
         overlap = max(0, min(ly2, y2) - max(ly1, y1)) / min(lh, h)
         if x1 >= lx2 - 10 and overlap > .35:
@@ -127,9 +130,11 @@ def extract_viz(items: list[dict[str, Any]]) -> tuple[dict[str, FieldResult], li
         if field in fields and fields[field].confidence >= items[idx]["score"]: continue
         label = items[idx]
         value = _inline_value(label["text"], alias, field)
+        if value and not _valid_candidate(field, value):
+            value = ""
         value_score = float(label["score"])
         if not value:
-            candidate, distance = _near_value(label, items, label_indices)
+            candidate, distance = _near_value(field, label, items, label_indices)
             if candidate:
                 value = candidate["text"].strip()
                 value_score = float(candidate["score"]) * max(.72, 1 - distance / 1200)
@@ -159,7 +164,7 @@ def extract_viz(items: list[dict[str, Any]]) -> tuple[dict[str, FieldResult], li
 
 _PERSONAL_NUMBER_PATTERNS = {
     "CHN": re.compile(r"\d{17}[0-9Xx]"),
-    "UZB": re.compile(r"\d{14}"),
+    "UZB": re.compile(r"\d{14,15}"),
     "TUR": re.compile(r"[1-9]\d{10}"),
     "KAZ": re.compile(r"\d{12}"),
 }
@@ -193,6 +198,106 @@ def infer_country_fields(items: list[dict[str, Any]], fields: dict[str, FieldRes
             confidence=round(min(score, .78), 3),
         )
     return enriched
+
+
+def infer_visual_document(items: list[dict[str, Any]], fields: dict[str, FieldResult]) -> tuple[dict[str, FieldResult], dict[str, str]]:
+    """Recover high-value fields from recognizable national ID-card layouts."""
+    enriched = dict(fields)
+    texts = [str(item.get("text", "")).strip() for item in items if str(item.get("text", "")).strip()]
+    joined = " ".join(texts)
+    compact_joined = re.sub(r"[^A-Z0-9]", "", joined.upper())
+    context: dict[str, str] = {}
+
+    if "中华人民共和国签证" in joined or "CHINESEVISA" in compact_joined:
+        context = {"issuing_state": "CHN", "type": "VISA"}
+        visa_number = next((match.group(0) for text in texts
+                            if (match := re.fullmatch(r"[A-Z]\d{7}", re.sub(r"\s", "", text.upper())))), None)
+        if visa_number:
+            enriched["document_number"] = FieldResult(visa_number, visa_number, ["viz", "country_pattern"], confidence=.82)
+        latin_name = next((match.group(0) for text in texts
+                           if (match := re.fullmatch(r"[A-Z](?:[.· ]+)[A-Z]{3,}", text.upper().strip()))), None)
+        if latin_name:
+            value = re.sub(r"[.·]+", ". ", latin_name).strip()
+            enriched["full_name"] = FieldResult(value, latin_name, ["viz", "country_pattern"], confidence=.78)
+            enriched.pop("surname_viz", None)
+            enriched.pop("given_names_viz", None)
+        birth = next((match.group(0) for text in texts
+                      if (match := re.search(r"\b\d{2}[A-Z]{3}\d{4}\b", text.upper()))), None)
+        if birth:
+            try:
+                value = datetime.strptime(birth, "%d%b%Y").strftime("%Y-%m-%d")
+                enriched["birth_date"] = FieldResult(value, birth, ["viz", "country_pattern"], confidence=.8)
+            except ValueError:
+                pass
+        return enriched, context
+
+    if "往来台湾通行证" in joined or "往來台灣通行證" in joined:
+        context = {"issuing_state": "CHN", "type": "TAIWAN_TRAVEL_PERMIT"}
+        if "document_number" not in enriched:
+            number = next((match.group(0) for text in texts
+                           if (match := re.search(r"\bL\d{8}\b", text.upper()))), None)
+            if number:
+                enriched["document_number"] = FieldResult(number, number, ["viz", "country_pattern"], confidence=.8)
+        if "full_name" not in enriched:
+            latin_name = next((match.group(0) for text in texts
+                               if (match := re.fullmatch(r"[A-Z]{2,}[.· ][A-Z]{2,}", text.upper().strip()))), None)
+            if latin_name:
+                value = re.sub(r"[.·]+", " ", latin_name)
+                enriched["full_name"] = FieldResult(value, latin_name, ["viz", "country_pattern"], confidence=.72)
+        if "birth_date" not in enriched:
+            dated = []
+            for text in texts:
+                for value in re.findall(r"\b\d{4}[./-]\d{2}[./-]\d{2}\b", text):
+                    try:
+                        dated.append((datetime.strptime(value.replace("/", ".").replace("-", "."), "%Y.%m.%d"), value))
+                    except ValueError:
+                        pass
+            if dated:
+                _, value = min(dated)
+                enriched["birth_date"] = FieldResult(value, value, ["viz", "country_pattern"], confidence=.78)
+        return enriched, context
+
+    if "TURKIYE" not in compact_joined and "REPUBLICOFTURKEY" not in compact_joined:
+        return enriched, context
+
+    context = {"issuing_state": "TUR", "type": "ID_CARD"}
+    enriched = infer_country_fields(items, enriched, "TUR")
+
+    if "document_number" not in enriched:
+        for text in texts:
+            compact = re.sub(r"[^A-Z0-9]", "", text.upper())
+            match = re.search(r"[A-Z]\d{2}[A-Z]\d{5}", compact)
+            if match:
+                value = match.group(0)
+                enriched["document_number"] = FieldResult(value, text, ["viz", "country_pattern"], confidence=.72)
+                break
+
+    dates: list[tuple[datetime, str]] = []
+    for text in texts:
+        for value in re.findall(r"\b\d{2}[./-]\d{2}[./-]\d{4}\b", text):
+            try:
+                dates.append((datetime.strptime(value.replace("/", ".").replace("-", "."), "%d.%m.%Y"), value))
+            except ValueError:
+                pass
+    if dates and "birth_date" not in enriched:
+        _, value = min(dates)
+        enriched["birth_date"] = FieldResult(value, value, ["viz", "country_pattern"], confidence=.75)
+
+    if "surname_viz" not in enriched or "given_names_viz" not in enriched:
+        excluded = {"TURKIYE", "CUMHURIYETI", "KIMLIK", "KARTI", "REPUBLIC", "TURKEY", "IDENTITY", "CARD"}
+        name_candidates = []
+        for text in texts:
+            compact = re.sub(r"[^A-Z]", "", text.upper())
+            words = set(re.findall(r"[A-Z]+", text.upper()))
+            if 4 <= len(compact) <= 30 and len(words) == 1 and not words.intersection(excluded):
+                if not re.search(r"\d", text) and compact not in {"GENDER", "NATIONALITY", "SIGNATURE"}:
+                    name_candidates.append((compact, text))
+        if name_candidates:
+            enriched.setdefault("surname_viz", FieldResult(name_candidates[0][0], name_candidates[0][1], ["viz", "country_layout"], confidence=.65))
+        if len(name_candidates) > 1:
+            enriched.setdefault("given_names_viz", FieldResult(name_candidates[1][0], name_candidates[1][1], ["viz", "country_layout"], confidence=.65))
+
+    return enriched, context
 
 
 def audit_ocr_mapping(items: list[dict[str, Any]], fields: dict[str, FieldResult]) -> list[dict[str, Any]]:

@@ -1,4 +1,5 @@
-from passport_mvp.viz import audit_ocr_mapping, extract_viz, infer_country_fields
+from passport_mvp.models import FieldResult
+from passport_mvp.viz import audit_ocr_mapping, extract_viz, infer_country_fields, infer_visual_document
 
 
 def item(text, x1, y1, x2, y2, score=.95):
@@ -82,3 +83,64 @@ def test_maps_reported_15_digit_inn_into_tax_field_and_json():
     ]
     fields, _ = extract_viz(objects)
     assert fields["tax_number"].value == "328802792660010"
+
+
+def test_given_names_parenthetical_label_suffix_is_not_a_value():
+    objects = [
+        item("Ismi / Given name(s)", 10, 10, 220, 35),
+        item("AKROM", 10, 45, 160, 70),
+    ]
+    fields, _ = extract_viz(objects)
+    assert fields["given_names_viz"].value == "AKROM"
+
+
+def test_infers_uzbek_15_digit_personal_identifier():
+    objects = [item("328802792660010", 10, 10, 250, 35)]
+    fields = infer_country_fields(objects, {}, "UZB")
+    assert fields["personal_number"].value == "328802792660010"
+
+
+def test_infers_turkish_identity_card_without_reliable_labels():
+    texts = [
+        "TURKIYE CUMHURIYETI KIMLIK KARTI", "REPUBLIC OF TURKEY IDENTITY CARD",
+        "TURKOGLU", "82345678902", "nN", "MELEKNUR", "Ceseu Yeender",
+        "DeoTabnDatot", "K/F", "29.05.1993", "S123456TC", "TA12Z34567",
+        "TC/TUR", "27.07.2024",
+    ]
+    objects = [item(text, 10, index * 40, 500, index * 40 + 30) for index, text in enumerate(texts)]
+    fields, context = infer_visual_document(objects, {})
+    assert context == {"issuing_state": "TUR", "type": "ID_CARD"}
+    assert fields["surname_viz"].value == "TURKOGLU"
+    assert fields["given_names_viz"].value == "MELEKNUR"
+    assert fields["birth_date"].value == "29.05.1993"
+    assert fields["personal_number"].value == "82345678902"
+    assert fields["document_number"].value == "A12Z34567"
+
+
+def test_infers_chinese_taiwan_travel_permit():
+    texts = [
+        "往来台湾通行证", "L00000000", "证件样本", "ZHENGJIAN.YANGBEN",
+        "女", "1982.08.03", "2015.08.20-2025.08.19", "福建",
+        "公安部出入境管理局", "CDL000000007<2508197<8208031<6",
+    ]
+    objects = [item(text, 10, index * 40, 500, index * 40 + 30) for index, text in enumerate(texts)]
+    fields, context = infer_visual_document(objects, {})
+    assert context == {"issuing_state": "CHN", "type": "TAIWAN_TRAVEL_PERMIT"}
+    assert fields["full_name"].value == "ZHENGJIAN YANGBEN"
+    assert fields["birth_date"].value == "1982.08.03"
+    assert fields["document_number"].value == "L00000000"
+
+
+def test_infers_chinese_visa_and_overrides_bad_generic_name():
+    texts = [
+        "B8327075", "中华人民共和国签证", "CHINESE VISA", "I.IVANOV",
+        "日年用", "625440048", "17MAR1969", "PASSPOAT NO.",
+        "6224500483RUS6503178M07101831920RUSDB4YH7N86",
+    ]
+    objects = [item(text, 10, index * 40, 500, index * 40 + 30) for index, text in enumerate(texts)]
+    bad_fields = {"full_name": FieldResult("日年用", "日年用", source=["viz"], confidence=.5)}
+    fields, context = infer_visual_document(objects, bad_fields)
+    assert context == {"issuing_state": "CHN", "type": "VISA"}
+    assert fields["full_name"].value == "I. IVANOV"
+    assert fields["birth_date"].value == "1969-03-17"
+    assert fields["document_number"].value == "B8327075"

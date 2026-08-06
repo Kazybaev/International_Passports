@@ -23,6 +23,8 @@ st.markdown("""
 .pill{display:inline-block;padding:5px 10px;background:#ecfdf3;color:#067647;border:1px solid #abefc6;border-radius:999px;font-size:12px;font-weight:700;margin-bottom:12px}
 .status{padding:16px 18px;border-radius:12px;border-left:5px solid;margin:8px 0 18px}.accepted{background:#ecfdf3;border-color:#17b26a}.review{background:#fffaeb;border-color:#f79009}.retry_capture,.rejected{background:#fef3f2;border-color:#f04438}
 .metric-card{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;min-height:100px}
+.model-picker{margin:0 0 10px}.model-picker h3{font-size:17px;margin:0 0 4px}.model-picker p{color:var(--muted);font-size:13px;margin:0}
+.model-description{min-height:44px;padding:9px 12px;margin:-3px 0 14px;border:1px solid #b2ccff;border-radius:10px;background:#eff6ff;color:#1849a9;font-size:13px;line-height:1.45}
 .identity-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0 18px}
 .identity-field{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:13px 15px;min-height:78px}
 .identity-field.wide{grid-column:1/-1}.identity-label{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:7px}
@@ -49,6 +51,37 @@ with st.sidebar:
     st.info("Изображение обрабатывается локально и не отправляется в облако.", icon="🔒")
 
 st.markdown('<div class="hero"><span class="pill">FULL OCR · VIZ + MRZ · ON-PREM</span><h1>Распознавание загранпаспорта</h1><p>Система извлекает весь видимый текст, структурирует визуальные поля, отдельно читает MRZ и проверяет контрольные цифры ICAO.</p></div>', unsafe_allow_html=True)
+
+models = {
+    "rapidocr": ("RapidOCR ONNX", "Текущая локальная модель — быстрый базовый режим."),
+    "paddleocr": ("PaddleOCR PP-OCRv6 Medium", "Основное распознавание всей страницы паспорта."),
+    "doctr": ("docTR: DBNet + PARSeq", "Текст под углом, разные фотографии и дообучение."),
+    "trocr": ("TrOCR Large Printed", "Повторное точное распознавание MRZ и отдельных полей."),
+}
+if "ocr_model" not in st.session_state:
+    st.session_state.ocr_model = "rapidocr"
+
+st.markdown('<div class="model-picker"><h3>Модель распознавания</h3><p>Выберите OCR-модель перед загрузкой и обработкой документа.</p></div>', unsafe_allow_html=True)
+model_columns = st.columns(4, gap="small")
+for column, (model_key, (model_name, _)) in zip(model_columns, models.items()):
+    with column:
+        if st.button(
+            model_name,
+            key=f"select_model_{model_key}",
+            type="primary" if st.session_state.ocr_model == model_key else "secondary",
+            use_container_width=True,
+        ):
+            if st.session_state.ocr_model != model_key:
+                st.session_state.ocr_model = model_key
+                st.session_state.pop("result", None)
+                st.session_state.pop("error", None)
+                st.rerun()
+
+selected_model_name, selected_model_description = models[st.session_state.ocr_model]
+st.markdown(
+    f'<div class="model-description"><b>{escape(selected_model_name)}</b> · {escape(selected_model_description)}</div>',
+    unsafe_allow_html=True,
+)
 
 uploaded = st.file_uploader("Фото страницы паспорта", type=["jpg", "jpeg", "png"], help="JPEG/PNG до 12 МБ. Минимальная сторона — желательно 1200 px.")
 if not uploaded:
@@ -224,13 +257,13 @@ with right:
             if q.reason_codes: st.warning("Причины: " + ", ".join(q.reason_codes))
             else: st.success("Автоматические проверки качества пройдены.")
         with tabs[7]:
-            canonical = getattr(result, "structured", {})
+            normalized = result.to_compact_dict()
             st.markdown("**Нормализованный паспортный JSON**")
-            st.json(canonical, expanded=True)
+            st.json(normalized, expanded=True)
             with st.expander("Технический JSON с OCR/MRZ evidence"):
                 st.json(result.to_dict(), expanded=False)
-        canonical_payload=json.dumps(getattr(result, "structured", {}),ensure_ascii=False,indent=2).encode()
-        st.download_button("Скачать нормализованный JSON",canonical_payload,"passport_normalized.json","application/json",use_container_width=True)
+        normalized_payload=json.dumps(result.to_compact_dict(),ensure_ascii=False,indent=2).encode()
+        st.download_button("Скачать нормализованный JSON",normalized_payload,"passport_normalized.json","application/json",use_container_width=True)
         payload=json.dumps(result.to_dict(),ensure_ascii=False,indent=2).encode()
         st.download_button("Скачать технический JSON",payload,"passport_result_full.json","application/json",use_container_width=True)
         st.caption("Важно: OCR и checksum подтверждают согласованность данных, но не физическую подлинность. Для статуса verified нужны NFC/authenticity checks.")

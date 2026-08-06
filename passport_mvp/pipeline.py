@@ -1,17 +1,36 @@
 from __future__ import annotations
 
+import re
 import time
 from typing import Any
 
 from . import __version__
 from .models import FieldResult, RecognitionResult
-from .mrz import normalize_lines, parse_td3, repair_line2
+from .mrz import extract_raw_document, extract_raw_identity, normalize_lines, parse_td3, repair_line2
 from .ocr import join_visual_lines, recognize
 from .structured import build_passport_data
 from .vision import decode_image, mrz_variants, normalize, quality
-from .viz import audit_ocr_mapping, extract_viz, infer_country_fields
+from .viz import audit_ocr_mapping, extract_viz, infer_country_fields, infer_visual_document
 
 SUPPORTED = {"CHN", "UZB", "RUS", "TUR", "KAZ", "TJK"}
+
+
+def _raw_mrz_rows(rows: list[dict]) -> list[dict]:
+    """Select TD3 name/data rows even when the data row contains no fillers."""
+    candidates = []
+    for row in rows:
+        text = re.sub(r"\s", "", str(row.get("text", "")).upper())
+        allowed = sum(character.isalnum() or character == "<" for character in text)
+        if 35 <= len(text) <= 55 and allowed / max(len(text), 1) >= .95:
+            candidates.append(row)
+    passport = next((row for row in reversed(candidates) if re.sub(r"\s", "", row["text"].upper()).startswith("P")), None)
+    data = next((row for row in reversed(candidates)
+                 if re.match(r"^[A-Z0-9<]{9}[0-9O][A-Z<]{3}\d{6}[0-9O][MFX<]\d{6}",
+                             re.sub(r"\s", "", row["text"].upper()))), None)
+    if passport and data and passport is not data:
+        return [passport, data]
+    with_fillers = [row for row in candidates if "<" in row["text"]]
+    return with_fillers[-2:]
 
 
 def _fields(parsed: dict, base_confidence: float) -> dict[str, FieldResult]:
@@ -36,8 +55,9 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     # Full-page OCR is evidence for the operator even when TD3 parsing fails.
     all_ocr = recognize(normalized)
     viz_fields, full_text = extract_viz(all_ocr)
+    viz_fields, visual_document = infer_visual_document(all_ocr, viz_fields)
     full_visual_rows = join_visual_lines(all_ocr)
-    raw_rows = [row for row in full_visual_rows if "<" in row["text"] and len(row["text"].replace(" ", "")) >= 25]
+    raw_rows = _raw_mrz_rows(full_visual_rows)
     if len(raw_rows) >= 2:
         selected = raw_rows[-2:]
         raw_mrz_candidates.append(([row["text"] for row in selected], sum(row["score"] for row in selected) / 2))
@@ -47,7 +67,7 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     for variant in mrz_variants(normalized):
         rows = recognize(variant)
         visual_rows = join_visual_lines(rows)
-        raw_rows = [row for row in visual_rows if "<" in row["text"] and len(row["text"].replace(" ", "")) >= 25]
+        raw_rows = _raw_mrz_rows(visual_rows)
         if len(raw_rows) >= 2:
             selected = raw_rows[-2:]
             raw_mrz_candidates.append(([row["text"] for row in selected], sum(row["score"] for row in selected) / 2))
@@ -88,6 +108,19 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     else:
         if country_hint != "AUTO":
             viz_fields = infer_country_fields(all_ocr, viz_fields, country_hint)
+        raw_document = extract_raw_document(best_raw_mrz)
+        raw_state = raw_document.pop("issuing_state", None)
+        raw_type = raw_document.pop("document_type", None)
+        if raw_state:
+            document = {"type": raw_type or "unknown", "issuing_state": raw_state, "template": f"{raw_state}/raw_mrz"}
+            viz_fields = infer_country_fields(all_ocr, viz_fields, raw_state)
+        elif visual_document:
+            visual_state = visual_document.get("issuing_state")
+            document = {"type": visual_document.get("type", "unknown"), "issuing_state": visual_state, "template": f"{visual_state}/visual_id"}
+        for key, value in raw_document.items():
+            fields[key] = FieldResult(value, value, source=["mrz", "raw_fallback"], confidence=.7)
+        for key, value in extract_raw_identity(best_raw_mrz).items():
+            fields[key] = FieldResult(value, value, source=["mrz", "raw_fallback"], confidence=.75)
         reason_codes.append("MRZ_INVALID_FORMAT" if best_raw_mrz else "MRZ_NOT_FOUND")
         status = "retry_capture"
     # MRZ remains authoritative for critical fields; VIZ is retained as evidence.
