@@ -1,0 +1,191 @@
+{
+  "models": {
+    "rapidocr": {
+      "label": "RapidOCR ONNX",
+      "images": 300,
+      "ok": 300,
+      "errors": 0,
+      "field_exact_pct": 65.62,
+      "mrz_line_exact_pct": 85.5,
+      "mrz_found_pct": 97.33,
+      "mrz_td3_pct": 0.0,
+      "mrz_required_valid_pct": 0.0,
+      "accepted_pct": 0.0,
+      "retry_capture_pct": 100.0,
+      "mean_processing_ms": 3948.31,
+      "p95_processing_ms": 4564.9,
+      "fields": {
+        "document_number": 96.0,
+        "surname": 32.67,
+        "given_names": 36.0,
+        "nationality": 100.0,
+        "birth_date": 98.33,
+        "sex": 1.0,
+        "expiry_date": 95.33
+      },
+      "countries": {
+        "CHN": {
+          "images": 50,
+          "field_exact_pct": 69.43,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 3965.44
+        },
+        "KAZ": {
+          "images": 50,
+          "field_exact_pct": 56.28,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 3862.18
+        },
+        "RUS": {
+          "images": 50,
+          "field_exact_pct": 56.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 3932.4
+        },
+        "TJK": {
+          "images": 50,
+          "field_exact_pct": 53.43,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 3909.92
+        },
+        "TUR": {
+          "images": 50,
+          "field_exact_pct": 73.71,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 4050.2
+        },
+        "UZB": {
+          "images": 50,
+          "field_exact_pct": 84.85,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 3969.74
+        }
+      }
+    },
+    "replit": {
+      "label": "Replit OCR endpoint",
+      "images": 300,
+      "ok": 0,
+      "errors": 300,
+      "field_exact_pct": 0.0,
+      "mrz_line_exact_pct": 0.0,
+      "mrz_found_pct": 0.0,
+      "mrz_td3_pct": 0.0,
+      "mrz_required_valid_pct": 0.0,
+      "accepted_pct": 0.0,
+      "retry_capture_pct": 0.0,
+      "mean_processing_ms": 0.0,
+      "p95_processing_ms": null,
+      "fields": {
+        "document_number": 0.0,
+        "surname": 0.0,
+        "given_names": 0.0,
+        "nationality": 0.0,
+        "birth_date": 0.0,
+        "sex": 0.0,
+        "expiry_date": 0.0
+      },
+      "countries": {
+        "CHN": {
+          "images": 0,
+          "field_exact_pct": 0.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 0.0
+        },
+        "KAZ": {
+          "images": 0,
+          "field_exact_pct": 0.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 0.0
+        },
+        "RUS": {
+          "images": 0,
+          "field_exact_pct": 0.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 0.0
+        },
+        "TJK": {
+          "images": 0,
+          "field_exact_pct": 0.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 0.0
+        },
+        "TUR": {
+          "images": 0,
+          "field_exact_pct": 0.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 0.0
+        },
+        "UZB": {
+          "images": 0,
+          "field_exact_pct": 0.0,
+          "mrz_required_valid_pct": 0.0,
+          "mean_processing_ms": 0.0
+        }
+      }
+    }
+  },
+  "best": {
+    "model": "rapidocr",
+    "label": "RapidOCR ONNX",
+    "images": 300,
+    "ok": 300,
+    "errors": 0,
+    "field_exact_pct": 65.62,
+    "mrz_line_exact_pct": 85.5,
+    "mrz_found_pct": 97.33,
+    "mrz_td3_pct": 0.0,
+    "mrz_required_valid_pct": 0.0,
+    "accepted_pct": 0.0,
+    "retry_capture_pct": 100.0,
+    "mean_processing_ms": 3948.31,
+    "p95_processing_ms": 4564.9,
+    "fields": {
+      "document_number": 96.0,
+      "surname": 32.67,
+      "given_names": 36.0,
+      "nationality": 100.0,
+      "birth_date": 98.33,
+      "sex": 1.0,
+      "expiry_date": 95.33
+    },
+    "countries": {
+      "CHN": {
+        "images": 50,
+        "field_exact_pct": 69.43,
+        "mrz_required_valid_pct": 0.0,
+        "mean_processing_ms": 3965.44
+      },
+      "KAZ": {
+        "images": 50,
+        "field_exact_pct": 56.28,
+        "mrz_required_valid_pct": 0.0,
+        "mean_processing_ms": 3862.18
+      },
+      "RUS": {
+        "images": 50,
+        "field_exact_pct": 56.0,
+        "mrz_required_valid_pct": 0.0,
+        "mean_processing_ms": 3932.4
+      },
+      "TJK": {
+        "images": 50,
+        "field_exact_pct": 53.43,
+        "mrz_required_valid_pct": 0.0,
+        "mean_processing_ms": 3909.92
+      },
+      "TUR": {
+        "images": 50,
+        "field_exact_pct": 73.71,
+        "mrz_required_valid_pct": 0.0,
+        "mean_processing_ms": 4050.2
+      },
+      "UZB": {
+        "images": 50,
+        "field_exact_pct": 84.85,
+        "mrz_required_valid_pct": 0.0,
+        "mean_processing_ms": 3969.74
+      }
+    }
+  }
+}

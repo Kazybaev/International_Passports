@@ -9,6 +9,8 @@ ExecStart=/home/zhanysh/EO/passport/.venv/bin/streamlit run app.py --server.head
 Restart=always
 RestartSec=3
 Environment=PYTHONUNBUFFERED=1
+Environment=LLAMA_CPP_BINARY=/home/zhanysh/EO/passport/artifacts/llama.cpp/llama-b10333/llama-server
+Environment=MPLCONFIGDIR=/home/zhanysh/EO/passport/artifacts/matplotlib
 
 [Install]
 WantedBy=default.target

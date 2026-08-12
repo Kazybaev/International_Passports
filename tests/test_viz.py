@@ -94,6 +94,83 @@ def test_given_names_parenthetical_label_suffix_is_not_a_value():
     assert fields["given_names_viz"].value == "AKROM"
 
 
+def test_signature_caption_is_never_used_as_a_person_name():
+    objects = [
+        item("Given names", 10, 10, 150, 35),
+        item("Bearer's signature", 180, 10, 390, 35),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert "given_names_viz" not in fields
+
+
+def test_short_label_alias_inside_a_real_name_does_not_reject_the_name():
+    objects = [
+        item("Given names", 10, 10, 150, 35),
+        item("ISMAIL", 180, 10, 300, 35),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert fields["given_names_viz"].value == "ISMAIL"
+
+
+def test_name_fields_do_not_use_unrelated_reading_order_fallback():
+    objects = [
+        item("Surname", 10, 10, 120, 35),
+        item("QINGWEI", 700, 180, 850, 210),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert "surname_viz" not in fields
+
+
+def test_bilingual_caption_after_slash_is_not_used_as_surname_value():
+    objects = [
+        item("SURNAME / OAMNJINA", 500, 340, 750, 370, score=.78),
+        item("LI", 500, 375, 570, 405, score=.96),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert fields["surname_viz"].value == "LI"
+
+
+def test_damaged_bilingual_given_names_caption_still_pairs_value_below():
+    objects = [
+        item("GIVENNAMES/MM9", 850, 350, 1050, 378, score=.89),
+        item("MEILING", 850, 380, 990, 410, score=.98),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert fields["given_names_viz"].value == "MEILING"
+
+
+def test_lost_bilingual_separator_does_not_hide_surname_below():
+    objects = [
+        item("SURNAMELOAMWJNA", 500, 340, 750, 370, score=.78),
+        item("ZHAO", 500, 375, 590, 405, score=.99),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert fields["surname_viz"].value == "ZHAO"
+
+
+def test_country_code_is_not_used_as_person_name():
+    objects = [
+        item("Surname", 500, 340, 650, 370),
+        item("CHN", 500, 375, 580, 405),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert "surname_viz" not in fields
+
+
 def test_infers_uzbek_15_digit_personal_identifier():
     objects = [item("328802792660010", 10, 10, 250, 35)]
     fields = infer_country_fields(objects, {}, "UZB")
@@ -144,3 +221,65 @@ def test_infers_chinese_visa_and_overrides_bad_generic_name():
     assert fields["full_name"].value == "I. IVANOV"
     assert fields["birth_date"].value == "1969-03-17"
     assert fields["document_number"].value == "B8327075"
+
+
+def test_infers_chinese_passport_split_name_and_repairs_ocr_dates():
+    texts = [
+        "PASSPORT", "E05975942", "姓名/Name", "支永胜",
+        "中华人民共和国机动车行驶证", "ZHIYONGSHENG",
+        "Vehicle License of the People's Republic of China",
+        "100CT1983", "性别/Sex", "男/M", "国籍/Nationality",
+        "中国/CHINESE", "169月/SEP2025", "有效期至/Dateofexpry",
+        "159月/SEP2035",
+    ]
+    objects = [item(text, 10, index * 40, 600, index * 40 + 30) for index, text in enumerate(texts)]
+
+    generic_fields, _ = extract_viz(objects)
+    fields, context = infer_visual_document(objects, generic_fields)
+
+    assert context == {"issuing_state": "CHN", "type": "PASSPORT"}
+    assert fields["surname_viz"].value == "ZHI"
+    assert fields["given_names_viz"].value == "YONGSHENG"
+    assert fields["full_name"].value == "ZHI YONGSHENG"
+    assert fields["birth_date"].value == "1983-10-10"
+    assert fields["issue_date"].value == "2025-09-16"
+    assert fields["expiry_date"].value == "2035-09-15"
+    assert fields["sex"].value == "M"
+    assert fields["nationality"].value == "CHN"
+    assert fields["document_number"].value == "E05975942"
+    mapping = audit_ocr_mapping(objects, fields)
+    expiry_row = next(row for row in mapping if row["Распознанный объект"] == "159月/SEP2035")
+    assert "expiry_date" in expiry_row["mapped_keys"]
+
+
+def test_chinese_name_split_does_not_apply_without_passport_context():
+    objects = [
+        item("姓名/Name", 10, 10, 180, 35),
+        item("ZHIYONGSHENG", 10, 50, 250, 75),
+        item("中华人民共和国机动车行驶证", 10, 90, 400, 115),
+    ]
+
+    fields = infer_country_fields(objects, {}, "CHN")
+
+    assert "surname_viz" not in fields
+    assert "given_names_viz" not in fields
+
+
+def test_infers_comma_separated_chinese_passport_name_and_october_dates():
+    texts = [
+        "PASSPORT", "姓名/Name", "努尔艾力·阿卜力米提", "NUERAILI,ABULIMITI",
+        "出生日/Daleofbit", "02APR 1979", "性别/Sex", "男/M",
+        "国/Natonality", "中国/CHINESE", "Date of issue", "3110月/0CT2025",
+        "有效期至/Dateofexpry", "3010月/0CT2035", "新疆/XINJIANG",
+    ]
+    objects = [item(text, 10, index * 40, 600, index * 40 + 30) for index, text in enumerate(texts)]
+
+    fields, context = infer_visual_document(objects, {})
+
+    assert context == {"issuing_state": "CHN", "type": "PASSPORT"}
+    assert fields["surname_viz"].value == "NUERAILI"
+    assert fields["given_names_viz"].value == "ABULIMITI"
+    assert fields["full_name"].value == "NUERAILI ABULIMITI"
+    assert fields["birth_date"].value == "1979-04-02"
+    assert fields["issue_date"].value == "2025-10-31"
+    assert fields["expiry_date"].value == "2035-10-30"

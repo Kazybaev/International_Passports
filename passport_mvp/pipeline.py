@@ -7,9 +7,9 @@ from typing import Any
 from . import __version__
 from .models import FieldResult, RecognitionResult
 from .mrz import extract_raw_document, extract_raw_identity, normalize_lines, parse_td3, repair_line2
-from .ocr import join_visual_lines, recognize
+from .ocr import engine_metadata, join_visual_lines, resolve_engine, recognize
 from .structured import build_passport_data
-from .vision import decode_image, mrz_variants, normalize, quality
+from .vision import decode_image, mrz_variants, name_region_variant, normalize, quality
 from .viz import audit_ocr_mapping, extract_viz, infer_country_fields, infer_visual_document
 
 SUPPORTED = {"CHN", "UZB", "RUS", "TUR", "KAZ", "TJK"}
@@ -44,8 +44,9 @@ def _fields(parsed: dict, base_confidence: float) -> dict[str, FieldResult]:
     return {name: FieldResult(parsed.get(key), str(parsed.get(key) or ""), checksum_valid=parsed["checks"].get(check), confidence=round(base_confidence if check is None or parsed["checks"].get(check) else min(base_confidence, .58), 3)) for name, (key, check) in mapping.items()}
 
 
-def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
+def run(blob: bytes, country_hint: str = "AUTO", ocr_model: str = "rapidocr") -> RecognitionResult:
     started = time.perf_counter()
+    model_key = resolve_engine(ocr_model)
     original = decode_image(blob)
     q = quality(original)
     normalized = normalize(original)
@@ -53,8 +54,20 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     raw_mrz_candidates: list[tuple[list[str], float]] = []
     best_crop = None
     # Full-page OCR is evidence for the operator even when TD3 parsing fails.
-    all_ocr = recognize(normalized)
+    all_ocr = recognize(normalized, model_key)
     viz_fields, full_text = extract_viz(all_ocr)
+    if not all(key in viz_fields for key in ("surname_viz", "given_names_viz")):
+        # Short names are disproportionately lost in full-page OCR. A focused
+        # upscaled pass supplies independent VIZ evidence without a dictionary
+        # of countries or personal names.
+        name_rows = recognize(name_region_variant(normalized), model_key)
+        name_fields, _ = extract_viz(name_rows)
+        for key in ("surname_viz", "given_names_viz"):
+            candidate = name_fields.get(key)
+            current = viz_fields.get(key)
+            if candidate and (current is None or candidate.confidence > current.confidence):
+                candidate.source = list(dict.fromkeys([*candidate.source, "name_region"]))
+                viz_fields[key] = candidate
     viz_fields, visual_document = infer_visual_document(all_ocr, viz_fields)
     full_visual_rows = join_visual_lines(all_ocr)
     raw_rows = _raw_mrz_rows(full_visual_rows)
@@ -64,8 +77,11 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
     full_lines = normalize_lines([row["text"] for row in full_visual_rows])
     if len(full_lines) == 2:
         candidates.append((full_lines, sum(row["score"] for row in full_visual_rows) / max(len(full_visual_rows), 1), all_ocr))
-    for variant in mrz_variants(normalized):
-        rows = recognize(variant)
+    # Every local engine receives the same MRZ crops. This keeps results
+    # comparable and lets the checksum parser select the best candidate.
+    variants = mrz_variants(normalized)
+    for variant in variants:
+        rows = recognize(variant, model_key)
         visual_rows = join_visual_lines(rows)
         raw_rows = _raw_mrz_rows(visual_rows)
         if len(raw_rows) >= 2:
@@ -131,4 +147,10 @@ def run(blob: bytes, country_hint: str = "AUTO") -> RecognitionResult:
             reason_codes.append(f"MRZ_VIZ_{key.upper()}_DIFF")
     ocr_mapping = audit_ocr_mapping(all_ocr, fields)
     structured = build_passport_data(fields, document, ocr_mapping)
-    return RecognitionResult(status, document, fields, mrz, q, {"reason_codes": list(dict.fromkeys(reason_codes)), "note": "OCR проверяет структуру данных, но не подлинность документа", "detected_objects": len(all_ocr), "structured_viz_fields": len(viz_fields)}, {"engine": "rapidocr_onnxruntime", "app_version": __version__, "model_manifest": "2026-07-31.2", "local_processing": True}, int((time.perf_counter() - started) * 1000), structured, viz_fields, full_text, normalized, best_crop, all_ocr)
+    provenance = {
+        **engine_metadata(model_key),
+        "app_version": __version__,
+        "model_manifest": "2026-08-07.1",
+        "local_processing": model_key != "replit",
+    }
+    return RecognitionResult(status, document, fields, mrz, q, {"reason_codes": list(dict.fromkeys(reason_codes)), "note": "OCR проверяет структуру данных, но не подлинность документа", "detected_objects": len(all_ocr), "structured_viz_fields": len(viz_fields)}, provenance, int((time.perf_counter() - started) * 1000), structured, viz_fields, full_text, normalized, best_crop, all_ocr)

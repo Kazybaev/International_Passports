@@ -14,6 +14,10 @@ make run
 
 Откройте `http://localhost:8501`. Первый OCR-запуск может быть медленнее из-за инициализации ONNX-моделей.
 
+В приложении доступны три локальных движка: быстрый RapidOCR, более точный
+PaddleOCR и независимый EasyOCR для сверки результата. При первом запуске
+PaddleOCR/EasyOCR скачивают свои веса в локальный кэш.
+
 Docker-вариант:
 
 ```bash
@@ -40,10 +44,10 @@ make test
 
 ## Что уже работает
 
-- JPEG/PNG до 12 МБ и 30 Мп, EXIF orientation;
+- JPEG/PNG и PDF до 12 МБ и 30 Мп на страницу; в PDF распознаются все страницы (до 20);
 - blur / brightness / glare / resolution checks;
 - три варианта MRZ preprocessing;
-- локальный RapidOCR через ONNX Runtime;
+- локальные RapidOCR (ONNX Runtime), PaddleOCR и EasyOCR;
 - ICAO TD3 2×44 parser и пять checksum-проверок;
 - консервативная O/0, I/1, B/8, S/5, G/6 коррекция только по checksum;
 - country hint и контроль шести целевых issuing-state кодов;

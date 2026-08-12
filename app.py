@@ -1,15 +1,22 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import time
 from html import escape
 
 import cv2
 import numpy as np
 import streamlit as st
+import streamlit.components.v1 as components
 
 from passport_mvp import __version__
 from passport_mvp.countries import COUNTRIES, personal_number_label
+from passport_mvp.ocr import ENGINE_OPTIONS, replit_endpoint_configured, resolve_engine
 from passport_mvp.pipeline import run
+from passport_mvp.structured import build_passport_data
+from passport_mvp.vehicle import extract_vehicle_fields, is_vehicle_document
+from passport_mvp.vision import decode_document_pages
 from passport_mvp.viz import DISPLAY_NAMES, audit_ocr_mapping
 
 st.set_page_config(page_title="Passport Lens", page_icon="◈", layout="wide", initial_sidebar_state="expanded")
@@ -30,13 +37,114 @@ st.markdown("""
 .identity-field.wide{grid-column:1/-1}.identity-label{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.02em;margin-bottom:7px}
 .identity-value{color:var(--ink);font-size:16px;font-weight:650;line-height:1.35;overflow-wrap:anywhere}.identity-empty{color:#98a2b3;font-weight:500}
 .identity-meta{color:var(--muted);font-size:11px;margin-top:7px}.country-note{background:#eff6ff;border:1px solid #b2ccff;border-radius:10px;padding:10px 12px;color:#1849a9;font-size:13px}
+.recognized-card{background:#f1f4fa;border-radius:16px;padding:22px 26px;margin:16px 0 22px}.recognized-title{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#5f6672;font-size:12px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;margin-bottom:12px}.recognized-badge{color:#067647;background:#d1fadf;border-radius:999px;padding:6px 10px;white-space:nowrap;letter-spacing:0}.recognized-row{display:grid;grid-template-columns:minmax(150px,44%) 1fr;gap:18px;padding:12px 0;border-bottom:1px solid #d4dae3}.recognized-row:last-child{border-bottom:0}.recognized-key{color:#667085}.recognized-value{color:#1d2433;font-weight:650;overflow-wrap:anywhere}.recognized-empty{color:#8b94a3;font-weight:500}
 .mono{font:14px ui-monospace,SFMono-Regular,Menlo,monospace;background:#101828;color:#d1e9ff;padding:12px;border-radius:10px;letter-spacing:1.5px;overflow-wrap:anywhere}
 div[data-testid="stFileUploader"]{background:#fff;border:1px dashed #84adff;border-radius:14px;padding:10px}
 .stButton>button,.stDownloadButton>button{min-height:44px;border-radius:10px;font-weight:650}
-@media(max-width:700px){.hero h1{font-size:27px}.hero{padding:18px}.mono{font-size:11px;letter-spacing:.5px}.identity-grid{grid-template-columns:1fr}.identity-field.wide{grid-column:auto}}
+@media(max-width:700px){.hero h1{font-size:27px}.hero{padding:18px}.mono{font-size:11px;letter-spacing:.5px}.identity-grid{grid-template-columns:1fr}.identity-field.wide{grid-column:auto}.recognized-card{padding:18px}.recognized-title{align-items:flex-start;flex-direction:column}.recognized-row{grid-template-columns:1fr;gap:4px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 """, unsafe_allow_html=True)
+
+
+def render_recognized_card(title: str, rows: list[tuple[str, str]]) -> None:
+    recognized = sum(bool(value) for _, value in rows)
+    with st.container(border=True):
+        title_column, status_column = st.columns([3, 2])
+        title_column.markdown(f"#### {title}")
+        status_column.success(f"Сопоставлено {recognized} из {len(rows)}")
+        for index, (key, value) in enumerate(rows):
+            key_column, value_column = st.columns([2, 3])
+            key_column.markdown(f"**{key}**")
+            value_column.markdown(str(value) if value else "_Не распознано_")
+            if index < len(rows) - 1:
+                st.divider()
+
+
+def passport_recognized_rows(result) -> list[tuple[str, str]]:
+    # Rebuild the presentation contract from retained field evidence so a
+    # hot-reloaded session immediately receives the latest mapping rules.
+    passport_data = build_passport_data(result.fields, result.document)
+    holder = passport_data.get("holder", {})
+    document = passport_data.get("document", {})
+    mrz = passport_data.get("mrz", {})
+
+    def value(*keys: str) -> str:
+        for key in keys:
+            item = result.fields.get(key)
+            if item and item.value:
+                return str(item.value)
+        return ""
+
+    sex = holder.get("sex") or value("sex")
+    sex = {"M": "Мужской", "F": "Женский", "X": "Не указан", "<": "Не указан"}.get(str(sex).upper(), sex)
+    return [
+        ("Фамилия", holder.get("surname") or value("surname", "surname_viz")),
+        ("Имя", holder.get("given_names") or value("given_names", "given_names_viz")),
+        ("Дата рождения", holder.get("birth_date") or value("birth_date")),
+        ("Пол", sex),
+        ("Гражданство", holder.get("nationality") or value("nationality")),
+        ("Государство выдачи", document.get("issuing_country_code") or result.document.get("issuing_state") or ""),
+        ("Номер документа", document.get("passport_number") or value("document_number")),
+        ("Срок действия до", document.get("expiry_date") or value("expiry_date")),
+        ("Дополнительное поле", mrz.get("optional_data") or value("optional_data")),
+    ]
+
+
+def vehicle_recognized_rows(result) -> list[tuple[str, str]]:
+    vehicle = extract_vehicle_fields(getattr(result, "full_text", []), getattr(result, "ocr_lines", []))
+    return [
+        ("Номер ТС", vehicle["registration_number"]),
+        ("VIN", vehicle["vin"]),
+        ("Марка", f"{vehicle['make_code']} · {vehicle['make']}" if vehicle["make"] else ""),
+        ("Модель", vehicle["model"]),
+        ("Тип ТС", f"{vehicle['type_code']} · {vehicle['type']}" if vehicle["type"] else ""),
+        ("Дата регистрации", vehicle["registration_date"]),
+    ]
+
+
+def all_recognized_object_rows(page_results) -> list[dict[str, object]]:
+    """Return every OCR object from every page, including unmapped text."""
+    rows: list[dict[str, object]] = []
+    for page_number, page_result in enumerate(page_results, 1):
+        mapping_rows = audit_ocr_mapping(
+            getattr(page_result, "ocr_lines", []),
+            getattr(page_result, "fields", {}),
+        )
+        for row in mapping_rows:
+            rows.append({
+                "Страница": page_number,
+                "№": row["№"],
+                "Распознанный объект": row["Распознанный объект"],
+                "Куда сопоставлен": row["Куда сопоставлен"],
+                "Роль": row["Роль"],
+                "Уверенность": row["Confidence"],
+            })
+    return rows
+
+
+def render_all_objects(page_results) -> None:
+    object_rows = all_recognized_object_rows(page_results)
+    mapped_count = sum(row["Куда сопоставлен"] != "Не сопоставлено" for row in object_rows)
+
+    st.markdown("#### Все распознанные объекты")
+    st.caption("Здесь показан каждый текстовый объект со всех страниц — сопоставленные и несопоставленные значения не скрываются.")
+    total_column, mapped_column = st.columns(2)
+    total_column.metric("Всего объектов", len(object_rows))
+    mapped_column.metric("Сопоставлено", f"{mapped_count} из {len(object_rows)}")
+
+    if not object_rows:
+        st.warning("OCR не нашёл текстовых объектов. Загрузите документ крупнее, ровно и без бликов.")
+        return
+
+    st.dataframe(object_rows, use_container_width=True, hide_index=True)
+    st.download_button(
+        "Скачать все объекты (JSON)",
+        json.dumps(object_rows, ensure_ascii=False, indent=2).encode(),
+        "all_recognized_objects.json",
+        "application/json",
+        use_container_width=True,
+    )
 
 with st.sidebar:
     st.markdown("## Passport Lens")
@@ -50,19 +158,19 @@ with st.sidebar:
     st.caption("Файл → качество → нормализация → OCR → ICAO TD3 → checksums → решение")
     st.info("Изображение обрабатывается локально и не отправляется в облако.", icon="🔒")
 
-st.markdown('<div class="hero"><span class="pill">FULL OCR · VIZ + MRZ · ON-PREM</span><h1>Распознавание загранпаспорта</h1><p>Система извлекает весь видимый текст, структурирует визуальные поля, отдельно читает MRZ и проверяет контрольные цифры ICAO.</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="hero"><span class="pill">ПАСПОРТ + ТРАНСПОРТ · ON-PREM</span><h1>Распознавание документов</h1><p>Каждая страница независимо проверяется как загранпаспорт и как транспортный документ. В одном PDF могут находиться оба типа.</p></div>', unsafe_allow_html=True)
 
 models = {
-    "rapidocr": ("RapidOCR ONNX", "Текущая локальная модель — быстрый базовый режим."),
-    "paddleocr": ("PaddleOCR PP-OCRv6 Medium", "Основное распознавание всей страницы паспорта."),
-    "doctr": ("docTR: DBNet + PARSeq", "Текст под углом, разные фотографии и дообучение."),
-    "trocr": ("TrOCR Large Printed", "Повторное точное распознавание MRZ и отдельных полей."),
+    key: (item["label"], item["description"])
+    for key, item in ENGINE_OPTIONS.items()
+    if key != "replit" or replit_endpoint_configured()
 }
 if "ocr_model" not in st.session_state:
     st.session_state.ocr_model = "rapidocr"
+st.session_state.ocr_model = resolve_engine(st.session_state.ocr_model)
 
 st.markdown('<div class="model-picker"><h3>Модель распознавания</h3><p>Выберите OCR-модель перед загрузкой и обработкой документа.</p></div>', unsafe_allow_html=True)
-model_columns = st.columns(4, gap="small")
+model_columns = st.columns(len(models), gap="small")
 for column, (model_key, (model_name, _)) in zip(model_columns, models.items()):
     with column:
         if st.button(
@@ -74,6 +182,7 @@ for column, (model_key, (model_name, _)) in zip(model_columns, models.items()):
             if st.session_state.ocr_model != model_key:
                 st.session_state.ocr_model = model_key
                 st.session_state.pop("result", None)
+                st.session_state.pop("results", None)
                 st.session_state.pop("error", None)
                 st.rerun()
 
@@ -83,7 +192,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-uploaded = st.file_uploader("Фото страницы паспорта", type=["jpg", "jpeg", "png"], help="JPEG/PNG до 12 МБ. Минимальная сторона — желательно 1200 px.")
+uploaded = st.file_uploader("Фото или PDF с документами", type=["jpg", "jpeg", "png", "pdf"], help="JPEG, PNG или PDF до 12 МБ. В PDF распознаются все страницы (до 20).")
 if not uploaded:
     a,b,c = st.columns(3)
     a.markdown('<div class="metric-card"><b>1 · Снимите ровно</b><br><small>Все 4 края страницы видны, без пальцев и обрезки MRZ.</small></div>', unsafe_allow_html=True)
@@ -92,27 +201,109 @@ if not uploaded:
     st.stop()
 
 blob = uploaded.getvalue()
+document_id = hashlib.sha256(blob).hexdigest()
+try:
+    preview_pages = decode_document_pages(blob)
+except ValueError as exc:
+    st.error(f"Не удалось открыть файл: {exc}")
+    st.stop()
 left, right = st.columns([1, 1.15], gap="large")
 with left:
-    st.subheader("Исходный кадр")
-    st.image(blob, use_container_width=True)
-    consent = st.checkbox("У меня есть законное основание обрабатывать этот документ", value=False)
+    st.subheader("Загруженный документ")
+    st.image(cv2.cvtColor(preview_pages[0], cv2.COLOR_BGR2RGB), caption="Страница 1", use_container_width=True)
+    if len(preview_pages) > 1:
+        st.caption(f"PDF содержит {len(preview_pages)} страниц. Будут распознаны все страницы.")
+    consent = st.checkbox(
+        "Полномочия на обработку документов подтверждены",
+        value=True,
+        key="legal_basis_confirmed",
+        help="Для рабочего места государственного органа подтверждение сохраняется на всю текущую сессию.",
+    )
     analyze = st.button("Распознать документ", type="primary", use_container_width=True, disabled=not consent)
 
 if analyze:
-    with st.spinner("Нормализуем изображение и проверяем MRZ…"):
-        try: st.session_state.result = run(blob, country)
-        except Exception as exc: st.session_state.error = str(exc); st.session_state.pop("result", None)
+    request_started = time.perf_counter()
+    timer_placeholder = st.empty()
+    with timer_placeholder:
+        components.html(
+            """
+            <div role="status" aria-live="polite" style="font:600 15px system-ui;color:#1849a9;background:#eff6ff;border:1px solid #b2ccff;border-radius:10px;padding:12px 14px">
+              Время обработки: <span id="ocr-timer" style="font-variant-numeric:tabular-nums">0.0 сек</span>
+            </div>
+            <script>
+              const started = performance.now();
+              const output = document.getElementById('ocr-timer');
+              const update = () => { output.textContent = ((performance.now() - started) / 1000).toFixed(1) + ' сек'; };
+              update();
+              setInterval(update, 100);
+            </script>
+            """,
+            height=58,
+        )
+    with st.spinner(f"Распознаём страницы: {len(preview_pages)}…"):
+        try:
+            page_results = []
+            for page in preview_pages:
+                encoded, page_blob = cv2.imencode(".png", page)
+                if not encoded:
+                    raise ValueError("Не удалось подготовить страницу PDF для OCR")
+                page_results.append(run(page_blob.tobytes(), country, st.session_state.ocr_model))
+            st.session_state.results = page_results
+            st.session_state.results_document_id = document_id
+            st.session_state.results_elapsed_seconds = time.perf_counter() - request_started
+            st.session_state.pop("result", None)
+            st.session_state.pop("error", None)
+            timer_placeholder.success(f"Обработка завершена за {st.session_state.results_elapsed_seconds:.2f} сек")
+        except Exception as exc:
+            elapsed_seconds = time.perf_counter() - request_started
+            st.session_state.error = str(exc)
+            st.session_state.pop("results", None)
+            timer_placeholder.error(f"Ошибка обработки через {elapsed_seconds:.2f} сек")
 
 with right:
-    if "error" in st.session_state and "result" not in st.session_state:
+    page_results = st.session_state.get("results", []) if st.session_state.get("results_document_id") == document_id else []
+    if "error" in st.session_state and not page_results:
         st.error(f"Не удалось обработать: {st.session_state.error}")
+    if page_results:
+        st.markdown("### Результат")
+        summary_pages, summary_time = st.columns(2)
+        summary_pages.metric("Обработано страниц", len(page_results))
+        elapsed_seconds = float(st.session_state.get("results_elapsed_seconds", 0))
+        summary_time.metric("Общее время запроса", f"{elapsed_seconds:.2f} сек" if elapsed_seconds else "—")
+        documents_tab, objects_tab = st.tabs(["Распознанные документы", "Все объекты"])
+        with documents_tab:
+            found_documents = 0
+            for page_number, page_result in enumerate(page_results, 1):
+                full_text = getattr(page_result, "full_text", [])
+                detected_vehicle = is_vehicle_document(full_text)
+                has_mrz = bool(page_result.mrz.get("lines"))
+                if len(page_results) > 1:
+                    st.markdown(f"#### Страница {page_number}")
+                st.caption(f"Время OCR страницы: {page_result.processing_ms / 1000:.2f} сек")
+                passport_rows = passport_recognized_rows(page_result)
+                vehicle_rows = vehicle_recognized_rows(page_result)
+                # Never hide one document type because the other type was detected:
+                # a scan or PDF can contain both documents, even on the same page.
+                render_recognized_card("Загранпаспорт", passport_rows)
+                render_recognized_card("Транспортное средство", vehicle_rows)
+                passport_detected = has_mrz or any(value for _, value in passport_rows[:2])
+                vehicle_detected = detected_vehicle or any(value for _, value in vehicle_rows)
+                found_documents += int(passport_detected) + int(vehicle_detected)
+                if not has_mrz:
+                    st.caption("MRZ на этой странице не найдена; доступные визуальные поля паспорта всё равно показаны.")
+                if not detected_vehicle:
+                    st.caption("Признаки транспортного документа на этой странице не найдены; результат проверки всё равно показан.")
+            st.caption(f"Распознано документов: {found_documents}. На каждой странице обязательно проверены оба типа: загранпаспорт и транспорт.")
+        with objects_tab:
+            render_all_objects(page_results)
+        st.stop()
     result = st.session_state.get("result")
     result_schema = getattr(result, "structured", {}).get("schema_version") if result else None
-    if result and result_schema != "2.0":
+    result_model = getattr(result, "provenance", {}).get("engine_key") if result else None
+    if result and (result_schema != "2.0" or result_model != st.session_state.ocr_model):
         with st.spinner("Обновляем сопоставление всех ключевых полей…"):
             try:
-                result = run(blob, country)
+                result = run(blob, country, st.session_state.ocr_model)
                 st.session_state.result = result
             except Exception as exc:
                 st.session_state.error = str(exc)
@@ -120,13 +311,18 @@ with right:
         # Keep hot-reloaded sessions compatible with results created by an older app version.
         viz_fields = getattr(result, "viz_fields", {})
         full_text = getattr(result, "full_text", [])
-        labels = {"accepted":("Принято","Все обязательные проверки MRZ пройдены."),"review":("Нужна проверка","Есть конфликт или неподтверждённое поле."),"retry_capture":("Переснимите документ","MRZ не найдена или качество не позволяет надёжно прочитать данные."),"rejected":("Отклонено","Документ не прошёл обязательные проверки.")}
-        title, desc = labels[result.status]
-        st.markdown(f'<div class="status {result.status}"><b>{title}</b><br><span>{desc}</span></div>', unsafe_allow_html=True)
+        detected_vehicle = is_vehicle_document(full_text)
+        title = "Проверены оба типа документов"
+        desc = "Результаты загранпаспорта и транспортного документа показаны независимо."
+        status_class = "accepted"
+        st.markdown(f'<div class="status {status_class}"><b>{title}</b><br><span>{desc}</span></div>', unsafe_allow_html=True)
         m1,m2,m3 = st.columns(3)
-        m1.metric("Страна", result.document.get("issuing_state") or "—")
-        m2.metric("Формат", result.document.get("type") or "—")
+        m1.metric("Проверка", "Паспорт + транспорт")
+        m2.metric("Найдено объектов", len(result.ocr_lines))
         m3.metric("Время", f"{result.processing_ms} мс")
+        render_recognized_card("Загранпаспорт", passport_recognized_rows(result))
+        render_recognized_card("Транспортное средство", vehicle_recognized_rows(result))
+        st.stop()
         tabs = st.tabs(["Ключевые поля", "Все поля", "VIZ-поля", "Все объекты", "Полный текст", "MRZ", "Качество", "JSON"])
         with tabs[0]:
             detected_country = result.document.get("issuing_state") or (country if country != "AUTO" else None)

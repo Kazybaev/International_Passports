@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from .countries import COUNTRIES
@@ -27,12 +28,80 @@ def _evidence(fields: dict[str, FieldResult]) -> dict[str, dict[str, Any]]:
     }
 
 
+_NAME_SERVICE_TAIL = re.compile(
+    r"(?i)(?:\b|(?<=[A-Z]))(?:"
+    r"REGISTER(?:ED|ATION)?\s*DA(?:T|L)E|"
+    r"ISSUE\s*DA(?:T|L)E|DATE\s*OF\s*ISSUE|"
+    r"DATE\s*OF\s*BIRTH|NATIONALITY|SEX|GENDER|"
+    r"BEARER(?:'S)?\s*SIGNATURE|HOLDER(?:'S)?\s*SIGNATURE|SIGNATURE|"
+    r"ПОДПИСЬ|ДАТА\s*ВЫДАЧИ|ДАТА\s*РОЖДЕНИЯ"
+    r")"
+)
+
+
+def _clean_person_name(value: str | None) -> str | None:
+    """Remove OCR-glued captions that can never be part of a holder name."""
+    if not value:
+        return None
+    cleaned = str(value).strip(" /:;·.-—<")
+    marker = _NAME_SERVICE_TAIL.search(cleaned)
+    if marker:
+        cleaned = cleaned[:marker.start()].strip(" /:;·.-—<")
+    cleaned = " ".join(cleaned.split())
+    return cleaned or None
+
+
+def _identity_name(fields: dict[str, FieldResult], mrz_key: str, viz_key: str, boundary_prefix: str | None = None) -> str | None:
+    """Choose a name by agreement of independent MRZ and visual OCR sources."""
+    mrz_field = fields.get(mrz_key)
+    viz_field = fields.get(viz_key)
+    mrz_value = _clean_person_name(str(mrz_field.value) if mrz_field and mrz_field.value else None)
+    viz_value = _clean_person_name(str(viz_field.value) if viz_field and viz_field.value else None)
+    if mrz_value and viz_value:
+        mrz_compact = re.sub(r"[^A-ZА-ЯЁ]", "", mrz_value.upper())
+        viz_compact = re.sub(r"[^A-ZА-ЯЁ]", "", viz_value.upper())
+        mrz_has_invalid = bool(re.search(r"[^A-ZА-ЯЁ '\-]", mrz_value.upper()))
+        viz_has_invalid = bool(re.search(r"[^A-ZА-ЯЁ '\-]", viz_value.upper()))
+        if mrz_has_invalid != viz_has_invalid:
+            return viz_value if mrz_has_invalid else mrz_value
+        if len(mrz_compact) < 2 <= len(viz_compact):
+            return viz_value
+        if mrz_compact == viz_compact:
+            return mrz_value
+        shorter, longer = sorted((mrz_compact, viz_compact), key=len)
+        shorter_value = mrz_value if len(mrz_compact) < len(viz_compact) else viz_value
+        # When one engine reads the complete name and another glues arbitrary
+        # text to its right, their common prefix identifies the name without a
+        # dictionary of possible captions or person-specific exceptions.
+        if len(shorter) >= 2 and longer.startswith(shorter):
+            return shorter_value
+        # At the fixed issuing-state/surname boundary OCR can duplicate the
+        # state's final glyph. Correct only that structurally provable case.
+        if boundary_prefix and mrz_compact == boundary_prefix.upper() + viz_compact:
+            return viz_value
+        # Name fields have no MRZ checksum of their own.  For unresolved
+        # conflicts prefer the independently read value only when its OCR
+        # confidence is materially higher; otherwise retain MRZ.
+        mrz_confidence = float(mrz_field.confidence or 0)
+        viz_confidence = float(viz_field.confidence or 0)
+        if "raw_fallback" in mrz_field.source and viz_confidence >= .75:
+            return viz_value
+        if viz_confidence >= mrz_confidence + .05:
+            return viz_value
+    return mrz_value or viz_value
+
+
 def build_passport_data(fields: dict[str, FieldResult], document: dict[str, Any], ocr_mapping: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Build the single canonical contract consumed by UI and JSON export."""
-    surname = _value(fields, "surname_viz", "surname")
-    given_names = _value(fields, "given_names_viz", "given_names")
-    patronymic = _value(fields, "patronymic")
-    full_name = _value(fields, "full_name") or " ".join(value for value in (surname, given_names, patronymic) if value) or None
+    # A checksum-validated MRZ has fixed ICAO slots: the surname is before
+    # ``<<`` and given names are after it.  Free-form VIZ OCR is only a fallback;
+    # otherwise a cropped first letter or a nearby signature caption can
+    # overwrite an exact MRZ value in the user-facing result.
+    issuing_state = str(document.get("issuing_state") or "")
+    surname = _identity_name(fields, "surname", "surname_viz", issuing_state[-1:] or None)
+    given_names = _identity_name(fields, "given_names", "given_names_viz")
+    patronymic = _clean_person_name(_value(fields, "patronymic"))
+    full_name = " ".join(value for value in (surname, given_names, patronymic) if value) or _value(fields, "full_name")
     country_code = document.get("issuing_state")
     if not country_code or country_code == "AUTO":
         nationality = (_value(fields, "nationality", "issuing_state_viz") or "").upper()

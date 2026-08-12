@@ -25,6 +25,90 @@ def test_builds_canonical_passport_json_with_correct_identity_slots():
     assert data["field_evidence"]["tax_number"]["source"] == ["viz"]
 
 
+def test_mrz_names_override_conflicting_and_noisy_visual_ocr():
+    fields = {
+        "surname": field("DING", "mrz"),
+        "given_names": field("QINGWEI", "mrz"),
+        "surname_viz": field("NDING"),
+        "given_names_viz": field("bearer's signature"),
+        "full_name": field("NDING bearer's signature"),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "CHN"})
+
+    assert data["holder"]["surname"] == "DING"
+    assert data["holder"]["given_names"] == "QINGWEI"
+    assert data["holder"]["full_name"] == "DING QINGWEI"
+
+
+def test_reconciles_one_extra_mrz_letter_and_removes_glued_captions():
+    fields = {
+        "surname": field("NDING", "mrz"),
+        "given_names": field("QINGWEI REGISTERDALEISSUE DALE", "mrz"),
+        "surname_viz": field("DING"),
+        "given_names_viz": field("QINGWEI"),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "CHN"})
+
+    assert data["holder"]["surname"] == "DING"
+    assert data["holder"]["given_names"] == "QINGWEI"
+    assert data["holder"]["full_name"] == "DING QINGWEI"
+
+
+def test_removes_glued_service_caption_even_without_visual_name():
+    data = build_passport_data(
+        {"given_names": field("QINGWEI ISSUE DATE", "mrz")},
+        {"type": "TD3", "issuing_state": "CHN"},
+    )
+
+    assert data["holder"]["given_names"] == "QINGWEI"
+
+
+def test_removes_any_unknown_suffix_when_independent_name_source_agrees():
+    fields = {
+        "given_names": field("AKMAL UNSEENMETADATA RANDOMCAPTION", "mrz"),
+        "given_names_viz": field("AKMAL"),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "UZB"})
+
+    assert data["holder"]["given_names"] == "AKMAL"
+
+
+def test_name_with_letters_beats_mrz_name_containing_digits():
+    fields = {
+        "surname": FieldResult("ZHA0", "ZHA0", ["mrz", "raw_fallback"], confidence=.75),
+        "surname_viz": FieldResult("ZHAO", "ZHAO", ["viz"], confidence=.8),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "CHN"})
+
+    assert data["holder"]["surname"] == "ZHAO"
+
+
+def test_higher_confidence_visual_name_resolves_unchecked_mrz_name_conflict():
+    fields = {
+        "given_names": FieldResult("MELNG", "MELNG", ["mrz", "raw_fallback"], confidence=.75),
+        "given_names_viz": FieldResult("MEILING", "MEILING", ["viz"], confidence=.91),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "CHN"})
+
+    assert data["holder"]["given_names"] == "MEILING"
+
+
+def test_missing_first_letter_is_not_mistaken_for_boundary_duplication():
+    fields = {
+        "given_names": FieldResult("UN", "UN", ["mrz", "raw_fallback"], confidence=.75),
+        "given_names_viz": FieldResult("JUN", "JUN", ["viz"], confidence=.9),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "CHN"})
+
+    assert data["holder"]["given_names"] == "JUN"
+
+
 def test_compact_json_contains_business_fields_without_evidence():
     data = build_passport_data({
         "surname": field("IVANOV"),

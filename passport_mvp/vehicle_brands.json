@@ -1,0 +1,3174 @@
+[
+  {
+    "code": "001",
+    "name": "ABARTH"
+  },
+  {
+    "code": "002",
+    "name": "ABG"
+  },
+  {
+    "code": "003",
+    "name": "AC CARS"
+  },
+  {
+    "code": "004",
+    "name": "ACERBI"
+  },
+  {
+    "code": "005",
+    "name": "ACKERMANN"
+  },
+  {
+    "code": "006",
+    "name": "ACTM"
+  },
+  {
+    "code": "007",
+    "name": "ACURA"
+  },
+  {
+    "code": "008",
+    "name": "ADIVA"
+  },
+  {
+    "code": "009",
+    "name": "ADLY"
+  },
+  {
+    "code": "010",
+    "name": "ADR TRAILERS"
+  },
+  {
+    "code": "011",
+    "name": "ADRIA"
+  },
+  {
+    "code": "012",
+    "name": "AEON"
+  },
+  {
+    "code": "013",
+    "name": "AERMACCHI"
+  },
+  {
+    "code": "014",
+    "name": "AJP"
+  },
+  {
+    "code": "015",
+    "name": "AJS"
+  },
+  {
+    "code": "016",
+    "name": "ALBAR"
+  },
+  {
+    "code": "017",
+    "name": "ALFA ROMEO"
+  },
+  {
+    "code": "018",
+    "name": "ALI RIZA USTA"
+  },
+  {
+    "code": "019",
+    "name": "ALLIGATOR"
+  },
+  {
+    "code": "020",
+    "name": "ALPINA"
+  },
+  {
+    "code": "021",
+    "name": "ALPINE"
+  },
+  {
+    "code": "022",
+    "name": "AMC"
+  },
+  {
+    "code": "023",
+    "name": "AMERICAN EAGLE"
+  },
+  {
+    "code": "024",
+    "name": "AMMANN"
+  },
+  {
+    "code": "025",
+    "name": "ANKAI"
+  },
+  {
+    "code": "026",
+    "name": "ANNABURGER"
+  },
+  {
+    "code": "027",
+    "name": "APRILIA"
+  },
+  {
+    "code": "028",
+    "name": "ARCTIC CAT"
+  },
+  {
+    "code": "029",
+    "name": "ARDOR"
+  },
+  {
+    "code": "030",
+    "name": "ARIEL"
+  },
+  {
+    "code": "031",
+    "name": "ARO"
+  },
+  {
+    "code": "032",
+    "name": "ARQIN"
+  },
+  {
+    "code": "033",
+    "name": "ARTEGA"
+  },
+  {
+    "code": "034",
+    "name": "ASCARI"
+  },
+  {
+    "code": "035",
+    "name": "ASIA"
+  },
+  {
+    "code": "036",
+    "name": "ASPES"
+  },
+  {
+    "code": "037",
+    "name": "ASTON MARTIN"
+  },
+  {
+    "code": "038",
+    "name": "ASTRA"
+  },
+  {
+    "code": "039",
+    "name": "ATEK"
+  },
+  {
+    "code": "040",
+    "name": "ATK"
+  },
+  {
+    "code": "041",
+    "name": "ATLAS"
+  },
+  {
+    "code": "042",
+    "name": "ATLAS HONDA"
+  },
+  {
+    "code": "043",
+    "name": "AUDI"
+  },
+  {
+    "code": "044",
+    "name": "AUSTIN"
+  },
+  {
+    "code": "045",
+    "name": "AUTOSAN"
+  },
+  {
+    "code": "046",
+    "name": "AVIA"
+  },
+  {
+    "code": "047",
+    "name": "AVTOTREIDING"
+  },
+  {
+    "code": "048",
+    "name": "BAJAJ"
+  },
+  {
+    "code": "049",
+    "name": "BALKANCAR"
+  },
+  {
+    "code": "050",
+    "name": "BALTMOTORS"
+  },
+  {
+    "code": "051",
+    "name": "BAMX"
+  },
+  {
+    "code": "052",
+    "name": "BAROSSA"
+  },
+  {
+    "code": "053",
+    "name": "BARYVAL"
+  },
+  {
+    "code": "054",
+    "name": "BAW"
+  },
+  {
+    "code": "055",
+    "name": "BAZ"
+  },
+  {
+    "code": "056",
+    "name": "BEIFANG BENCHI"
+  },
+  {
+    "code": "057",
+    "name": "BEIJING"
+  },
+  {
+    "code": "058",
+    "name": "BELAZ"
+  },
+  {
+    "code": "059",
+    "name": "BENALU"
+  },
+  {
+    "code": "060",
+    "name": "BENELLI"
+  },
+  {
+    "code": "061",
+    "name": "BENNCHE"
+  },
+  {
+    "code": "062",
+    "name": "BENTLEY"
+  },
+  {
+    "code": "063",
+    "name": "BERGER"
+  },
+  {
+    "code": "064",
+    "name": "BETA"
+  },
+  {
+    "code": "065",
+    "name": "BIG BEAR CHOPPERS"
+  },
+  {
+    "code": "066",
+    "name": "BIG DOG"
+  },
+  {
+    "code": "067",
+    "name": "BIMOTA"
+  },
+  {
+    "code": "068",
+    "name": "BITTER"
+  },
+  {
+    "code": "069",
+    "name": "BLATA"
+  },
+  {
+    "code": "070",
+    "name": "BMW"
+  },
+  {
+    "code": "071",
+    "name": "BOBCAT"
+  },
+  {
+    "code": "072",
+    "name": "BOCKMANN"
+  },
+  {
+    "code": "073",
+    "name": "BODEX"
+  },
+  {
+    "code": "074",
+    "name": "BOGDAN"
+  },
+  {
+    "code": "075",
+    "name": "BOMAG"
+  },
+  {
+    "code": "076",
+    "name": "BOOM TRIKES"
+  },
+  {
+    "code": "077",
+    "name": "BOVA"
+  },
+  {
+    "code": "078",
+    "name": "BPG RECREATIONAL"
+  },
+  {
+    "code": "079",
+    "name": "BRAMMO"
+  },
+  {
+    "code": "080",
+    "name": "BRIAB"
+  },
+  {
+    "code": "081",
+    "name": "BRILLIANCE"
+  },
+  {
+    "code": "082",
+    "name": "BRISTOL"
+  },
+  {
+    "code": "083",
+    "name": "BROOKE"
+  },
+  {
+    "code": "084",
+    "name": "BROSHUIS"
+  },
+  {
+    "code": "085",
+    "name": "BSA"
+  },
+  {
+    "code": "086",
+    "name": "BSLT"
+  },
+  {
+    "code": "087",
+    "name": "BSS"
+  },
+  {
+    "code": "088",
+    "name": "BUCCIMOTO"
+  },
+  {
+    "code": "089",
+    "name": "BUELL"
+  },
+  {
+    "code": "090",
+    "name": "BUGATTI"
+  },
+  {
+    "code": "091",
+    "name": "BUICK"
+  },
+  {
+    "code": "092",
+    "name": "BURG"
+  },
+  {
+    "code": "093",
+    "name": "BYD"
+  },
+  {
+    "code": "094",
+    "name": "CADILLAC"
+  },
+  {
+    "code": "095",
+    "name": "CAGIVA"
+  },
+  {
+    "code": "096",
+    "name": "CALIFORNIA SCOOTER"
+  },
+  {
+    "code": "097",
+    "name": "CALLAWAY"
+  },
+  {
+    "code": "098",
+    "name": "CAMC"
+  },
+  {
+    "code": "099",
+    "name": "CAMPTOURIST"
+  },
+  {
+    "code": "100",
+    "name": "CAN-AM"
+  },
+  {
+    "code": "101",
+    "name": "CARBODIES"
+  },
+  {
+    "code": "102",
+    "name": "CARDI"
+  },
+  {
+    "code": "103",
+    "name": "CARGOBIKE"
+  },
+  {
+    "code": "104",
+    "name": "CARNEHL"
+  },
+  {
+    "code": "105",
+    "name": "CASE"
+  },
+  {
+    "code": "106",
+    "name": "CATERHAM"
+  },
+  {
+    "code": "107",
+    "name": "CATERPILLAR"
+  },
+  {
+    "code": "108",
+    "name": "CCM"
+  },
+  {
+    "code": "109",
+    "name": "CECTEK"
+  },
+  {
+    "code": "110",
+    "name": "CFMOTO"
+  },
+  {
+    "code": "111",
+    "name": "CH RACING"
+  },
+  {
+    "code": "112",
+    "name": "CHAMPION"
+  },
+  {
+    "code": "113",
+    "name": "CHANA"
+  },
+  {
+    "code": "114",
+    "name": "CHANG JIANG"
+  },
+  {
+    "code": "115",
+    "name": "CHANGAN"
+  },
+  {
+    "code": "116",
+    "name": "CHANGFENG"
+  },
+  {
+    "code": "117",
+    "name": "CHANGHE"
+  },
+  {
+    "code": "118",
+    "name": "CHANGLIN"
+  },
+  {
+    "code": "119",
+    "name": "CHENGGONG"
+  },
+  {
+    "code": "120",
+    "name": "CHEREAU"
+  },
+  {
+    "code": "121",
+    "name": "CHERY"
+  },
+  {
+    "code": "122",
+    "name": "CHEVAL LIBERTE"
+  },
+  {
+    "code": "123",
+    "name": "CHEVROLET"
+  },
+  {
+    "code": "124",
+    "name": "CHRYSLER"
+  },
+  {
+    "code": "125",
+    "name": "CIFA"
+  },
+  {
+    "code": "126",
+    "name": "CIMC"
+  },
+  {
+    "code": "127",
+    "name": "CIMC SILVERGREEN"
+  },
+  {
+    "code": "128",
+    "name": "CITROEN"
+  },
+  {
+    "code": "129",
+    "name": "CIZETA"
+  },
+  {
+    "code": "130",
+    "name": "COBRA"
+  },
+  {
+    "code": "131",
+    "name": "COGGIOLA"
+  },
+  {
+    "code": "132",
+    "name": "CPI"
+  },
+  {
+    "code": "133",
+    "name": "CR&S"
+  },
+  {
+    "code": "134",
+    "name": "DACIA"
+  },
+  {
+    "code": "135",
+    "name": "DADI"
+  },
+  {
+    "code": "136",
+    "name": "DAEWOO"
+  },
+  {
+    "code": "137",
+    "name": "DAF"
+  },
+  {
+    "code": "138",
+    "name": "DAIHATSU"
+  },
+  {
+    "code": "139",
+    "name": "DAIMLER"
+  },
+  {
+    "code": "140",
+    "name": "DALLAS"
+  },
+  {
+    "code": "141",
+    "name": "DATSUN"
+  },
+  {
+    "code": "142",
+    "name": "DE TOMASO"
+  },
+  {
+    "code": "143",
+    "name": "DELOREAN"
+  },
+  {
+    "code": "144",
+    "name": "DEMAG"
+  },
+  {
+    "code": "145",
+    "name": "DERWAYS"
+  },
+  {
+    "code": "146",
+    "name": "DKW"
+  },
+  {
+    "code": "147",
+    "name": "DODGE"
+  },
+  {
+    "code": "148",
+    "name": "DOLL"
+  },
+  {
+    "code": "149",
+    "name": "DONGFENG"
+  },
+  {
+    "code": "150",
+    "name": "DONINVEST"
+  },
+  {
+    "code": "151",
+    "name": "DONKERVOORT"
+  },
+  {
+    "code": "152",
+    "name": "DOOSAN"
+  },
+  {
+    "code": "153",
+    "name": "DRESSTA"
+  },
+  {
+    "code": "154",
+    "name": "DYNAPAC"
+  },
+  {
+    "code": "155",
+    "name": "E-MAX"
+  },
+  {
+    "code": "156",
+    "name": "E-TON"
+  },
+  {
+    "code": "157",
+    "name": "ETROPOLIS"
+  },
+  {
+    "code": "158",
+    "name": "EAGLE"
+  },
+  {
+    "code": "159",
+    "name": "EAGLE WING"
+  },
+  {
+    "code": "160",
+    "name": "ECOSSE"
+  },
+  {
+    "code": "161",
+    "name": "EDUARD"
+  },
+  {
+    "code": "162",
+    "name": "EFINI"
+  },
+  {
+    "code": "163",
+    "name": "EIGENBAU"
+  },
+  {
+    "code": "164",
+    "name": "ELFIN"
+  },
+  {
+    "code": "165",
+    "name": "ERAZ"
+  },
+  {
+    "code": "166",
+    "name": "EBR (ERIK BUELL RACING)"
+  },
+  {
+    "code": "167",
+    "name": "ESPERO"
+  },
+  {
+    "code": "168",
+    "name": "EXCALIBUR"
+  },
+  {
+    "code": "169",
+    "name": "EXPLORER"
+  },
+  {
+    "code": "170",
+    "name": "FACTORY BIKE"
+  },
+  {
+    "code": "171",
+    "name": "FANTIC"
+  },
+  {
+    "code": "172",
+    "name": "FAUN"
+  },
+  {
+    "code": "173",
+    "name": "FAW"
+  },
+  {
+    "code": "174",
+    "name": "FAYMONVILLE"
+  },
+  {
+    "code": "175",
+    "name": "FELDBINDER"
+  },
+  {
+    "code": "176",
+    "name": "FERRARI"
+  },
+  {
+    "code": "177",
+    "name": "FGR"
+  },
+  {
+    "code": "178",
+    "name": "FIAT"
+  },
+  {
+    "code": "179",
+    "name": "FIAT-HITACHI"
+  },
+  {
+    "code": "180",
+    "name": "FIAT KOBELCO"
+  },
+  {
+    "code": "181",
+    "name": "FIORI"
+  },
+  {
+    "code": "182",
+    "name": "FISCHER"
+  },
+  {
+    "code": "183",
+    "name": "FISKER"
+  },
+  {
+    "code": "184",
+    "name": "FLIEGL"
+  },
+  {
+    "code": "185",
+    "name": "FOKAMO"
+  },
+  {
+    "code": "186",
+    "name": "FORD"
+  },
+  {
+    "code": "187",
+    "name": "FOSTI"
+  },
+  {
+    "code": "188",
+    "name": "FOTON"
+  },
+  {
+    "code": "189",
+    "name": "FREIGHTLINER"
+  },
+  {
+    "code": "190",
+    "name": "FRUEHAUF"
+  },
+  {
+    "code": "191",
+    "name": "FSM"
+  },
+  {
+    "code": "192",
+    "name": "FSO"
+  },
+  {
+    "code": "193",
+    "name": "FUCHS"
+  },
+  {
+    "code": "194",
+    "name": "FUQI"
+  },
+  {
+    "code": "195",
+    "name": "FURUKAWA"
+  },
+  {
+    "code": "196",
+    "name": "GARELLI"
+  },
+  {
+    "code": "197",
+    "name": "GAS"
+  },
+  {
+    "code": "198",
+    "name": "GASVI"
+  },
+  {
+    "code": "199",
+    "name": "GAZ"
+  },
+  {
+    "code": "200",
+    "name": "GEELY"
+  },
+  {
+    "code": "201",
+    "name": "GENERAL MOTORS"
+  },
+  {
+    "code": "202",
+    "name": "GENERIC"
+  },
+  {
+    "code": "203",
+    "name": "GENUINE SCOOTER"
+  },
+  {
+    "code": "204",
+    "name": "GEO"
+  },
+  {
+    "code": "205",
+    "name": "GIANT"
+  },
+  {
+    "code": "206",
+    "name": "GIANTCO"
+  },
+  {
+    "code": "207",
+    "name": "GILERA"
+  },
+  {
+    "code": "208",
+    "name": "GMC"
+  },
+  {
+    "code": "209",
+    "name": "GOES"
+  },
+  {
+    "code": "210",
+    "name": "GOFA"
+  },
+  {
+    "code": "211",
+    "name": "GOLDEN DRAGON"
+  },
+  {
+    "code": "212",
+    "name": "GONOW"
+  },
+  {
+    "code": "213",
+    "name": "GOODWILL"
+  },
+  {
+    "code": "214",
+    "name": "GOVECS"
+  },
+  {
+    "code": "215",
+    "name": "GRAY&ADAMS"
+  },
+  {
+    "code": "216",
+    "name": "GRC MOTO"
+  },
+  {
+    "code": "217",
+    "name": "GREAT WALL"
+  },
+  {
+    "code": "218",
+    "name": "GREENTRANS"
+  },
+  {
+    "code": "219",
+    "name": "GROENEWEGEN"
+  },
+  {
+    "code": "220",
+    "name": "GROVE"
+  },
+  {
+    "code": "221",
+    "name": "GRUNWALD"
+  },
+  {
+    "code": "222",
+    "name": "GRYPHON"
+  },
+  {
+    "code": "223",
+    "name": "GT"
+  },
+  {
+    "code": "224",
+    "name": "GUMPERT"
+  },
+  {
+    "code": "225",
+    "name": "GURLESENYIL"
+  },
+  {
+    "code": "226",
+    "name": "HAFEI"
+  },
+  {
+    "code": "227",
+    "name": "HAIMA"
+  },
+  {
+    "code": "228",
+    "name": "HALLER"
+  },
+  {
+    "code": "229",
+    "name": "HAMM"
+  },
+  {
+    "code": "230",
+    "name": "HANIX"
+  },
+  {
+    "code": "231",
+    "name": "HANOMAG"
+  },
+  {
+    "code": "232",
+    "name": "HANWOO"
+  },
+  {
+    "code": "233",
+    "name": "HAOJIN"
+  },
+  {
+    "code": "234",
+    "name": "HAPERT"
+  },
+  {
+    "code": "235",
+    "name": "HARLEY-DAVIDSON"
+  },
+  {
+    "code": "236",
+    "name": "HBM-NOBAS"
+  },
+  {
+    "code": "237",
+    "name": "HDM"
+  },
+  {
+    "code": "238",
+    "name": "HEADBANGER"
+  },
+  {
+    "code": "239",
+    "name": "HEALEY"
+  },
+  {
+    "code": "240",
+    "name": "HENDRICKS"
+  },
+  {
+    "code": "241",
+    "name": "HERCULES"
+  },
+  {
+    "code": "242",
+    "name": "HERO"
+  },
+  {
+    "code": "243",
+    "name": "HERO ELECTRIC"
+  },
+  {
+    "code": "244",
+    "name": "HERO HONDA"
+  },
+  {
+    "code": "245",
+    "name": "HESKETH"
+  },
+  {
+    "code": "246",
+    "name": "HFR"
+  },
+  {
+    "code": "247",
+    "name": "HIDROMEK"
+  },
+  {
+    "code": "248",
+    "name": "HIGER"
+  },
+  {
+    "code": "249",
+    "name": "HIGHLAND"
+  },
+  {
+    "code": "250",
+    "name": "HINDUSTAN"
+  },
+  {
+    "code": "251",
+    "name": "HINO"
+  },
+  {
+    "code": "252",
+    "name": "HISUN"
+  },
+  {
+    "code": "253",
+    "name": "HITACHI"
+  },
+  {
+    "code": "254",
+    "name": "HM"
+  },
+  {
+    "code": "255",
+    "name": "HOBBS"
+  },
+  {
+    "code": "256",
+    "name": "HOLDEN"
+  },
+  {
+    "code": "257",
+    "name": "HONDA"
+  },
+  {
+    "code": "258",
+    "name": "HONGYAN"
+  },
+  {
+    "code": "259",
+    "name": "HORCH"
+  },
+  {
+    "code": "260",
+    "name": "HOREX"
+  },
+  {
+    "code": "261",
+    "name": "HOWO"
+  },
+  {
+    "code": "262",
+    "name": "HP"
+  },
+  {
+    "code": "263",
+    "name": "HP POWER"
+  },
+  {
+    "code": "264",
+    "name": "HUANDA"
+  },
+  {
+    "code": "265",
+    "name": "HUANGHAI"
+  },
+  {
+    "code": "266",
+    "name": "HUMBAUR"
+  },
+  {
+    "code": "267",
+    "name": "HUMMER"
+  },
+  {
+    "code": "268",
+    "name": "HUSABERG"
+  },
+  {
+    "code": "269",
+    "name": "HUSQVARNA"
+  },
+  {
+    "code": "270",
+    "name": "HYDREMA"
+  },
+  {
+    "code": "271",
+    "name": "HYOSUNG"
+  },
+  {
+    "code": "272",
+    "name": "HYUNDAI"
+  },
+  {
+    "code": "273",
+    "name": "IFA"
+  },
+  {
+    "code": "274",
+    "name": "IKARBUS"
+  },
+  {
+    "code": "275",
+    "name": "IKARUS"
+  },
+  {
+    "code": "276",
+    "name": "INDIAN"
+  },
+  {
+    "code": "277",
+    "name": "INFINITI"
+  },
+  {
+    "code": "278",
+    "name": "INNOCENTI"
+  },
+  {
+    "code": "279",
+    "name": "INNOSCOOTER"
+  },
+  {
+    "code": "280",
+    "name": "INTERNATIONAL"
+  },
+  {
+    "code": "281",
+    "name": "INTERSTATE 1"
+  },
+  {
+    "code": "282",
+    "name": "INTREPID"
+  },
+  {
+    "code": "283",
+    "name": "INVICTA"
+  },
+  {
+    "code": "284",
+    "name": "IPV"
+  },
+  {
+    "code": "285",
+    "name": "IRAN KHODRO"
+  },
+  {
+    "code": "286",
+    "name": "IRBIS"
+  },
+  {
+    "code": "287",
+    "name": "IRISBUS"
+  },
+  {
+    "code": "288",
+    "name": "ISDERA"
+  },
+  {
+    "code": "289",
+    "name": "ISUZU"
+  },
+  {
+    "code": "290",
+    "name": "ITALJET"
+  },
+  {
+    "code": "291",
+    "name": "IVECO"
+  },
+  {
+    "code": "292",
+    "name": "IZH"
+  },
+  {
+    "code": "293",
+    "name": "IZUKA"
+  },
+  {
+    "code": "294",
+    "name": "JAC"
+  },
+  {
+    "code": "295",
+    "name": "JAGUAR"
+  },
+  {
+    "code": "296",
+    "name": "JAWA"
+  },
+  {
+    "code": "297",
+    "name": "JCB"
+  },
+  {
+    "code": "298",
+    "name": "JEEP"
+  },
+  {
+    "code": "299",
+    "name": "JELCZ"
+  },
+  {
+    "code": "300",
+    "name": "JIALING"
+  },
+  {
+    "code": "301",
+    "name": "JIANGLING"
+  },
+  {
+    "code": "302",
+    "name": "JIANGNAN"
+  },
+  {
+    "code": "303",
+    "name": "JIANSHE"
+  },
+  {
+    "code": "304",
+    "name": "JINBEI"
+  },
+  {
+    "code": "305",
+    "name": "JINCHENG"
+  },
+  {
+    "code": "306",
+    "name": "JINLUN"
+  },
+  {
+    "code": "307",
+    "name": "JOHN DEERE"
+  },
+  {
+    "code": "308",
+    "name": "JOHNNY PAG"
+  },
+  {
+    "code": "309",
+    "name": "JONWAY"
+  },
+  {
+    "code": "310",
+    "name": "JORDAN"
+  },
+  {
+    "code": "311",
+    "name": "JRL"
+  },
+  {
+    "code": "312",
+    "name": "JUEJIN"
+  },
+  {
+    "code": "313",
+    "name": "JUKI"
+  },
+  {
+    "code": "314",
+    "name": "JUMBO"
+  },
+  {
+    "code": "315",
+    "name": "JYKI"
+  },
+  {
+    "code": "316",
+    "name": "K2O"
+  },
+  {
+    "code": "317",
+    "name": "KABIRDASS"
+  },
+  {
+    "code": "318",
+    "name": "KAMAZ"
+  },
+  {
+    "code": "319",
+    "name": "KANGDA"
+  },
+  {
+    "code": "320",
+    "name": "KANUNI"
+  },
+  {
+    "code": "321",
+    "name": "KASINSKI"
+  },
+  {
+    "code": "322",
+    "name": "KASSBOHRER"
+  },
+  {
+    "code": "323",
+    "name": "KATO"
+  },
+  {
+    "code": "324",
+    "name": "KAVZ"
+  },
+  {
+    "code": "325",
+    "name": "KAWASAKI"
+  },
+  {
+    "code": "326",
+    "name": "KEEWAY"
+  },
+  {
+    "code": "327",
+    "name": "KEL-BERG"
+  },
+  {
+    "code": "328",
+    "name": "KENWORTH"
+  },
+  {
+    "code": "329",
+    "name": "KIA"
+  },
+  {
+    "code": "330",
+    "name": "KINETIC"
+  },
+  {
+    "code": "331",
+    "name": "KING LONG"
+  },
+  {
+    "code": "332",
+    "name": "KINROAD"
+  },
+  {
+    "code": "333",
+    "name": "KIP"
+  },
+  {
+    "code": "334",
+    "name": "KOBELCO"
+  },
+  {
+    "code": "335",
+    "name": "KOGEL"
+  },
+  {
+    "code": "336",
+    "name": "KOENIGSEGG"
+  },
+  {
+    "code": "337",
+    "name": "KOMATSU"
+  },
+  {
+    "code": "338",
+    "name": "KRAMER"
+  },
+  {
+    "code": "339",
+    "name": "KRAZ"
+  },
+  {
+    "code": "340",
+    "name": "KRONE"
+  },
+  {
+    "code": "341",
+    "name": "KRUPP"
+  },
+  {
+    "code": "342",
+    "name": "KTM"
+  },
+  {
+    "code": "343",
+    "name": "KUBOTA"
+  },
+  {
+    "code": "344",
+    "name": "KUFER"
+  },
+  {
+    "code": "345",
+    "name": "KYMCO"
+  },
+  {
+    "code": "346",
+    "name": "LADA"
+  },
+  {
+    "code": "347",
+    "name": "LAG"
+  },
+  {
+    "code": "348",
+    "name": "LAMBERET"
+  },
+  {
+    "code": "349",
+    "name": "LAMBORGHINI"
+  },
+  {
+    "code": "350",
+    "name": "LAMBRETTA"
+  },
+  {
+    "code": "351",
+    "name": "LANCIA"
+  },
+  {
+    "code": "352",
+    "name": "LAND ROVER"
+  },
+  {
+    "code": "353",
+    "name": "LANDWIND"
+  },
+  {
+    "code": "354",
+    "name": "LANGENDORF"
+  },
+  {
+    "code": "355",
+    "name": "LANGFELD"
+  },
+  {
+    "code": "356",
+    "name": "LATRE"
+  },
+  {
+    "code": "357",
+    "name": "LAUGE JENSEN"
+  },
+  {
+    "code": "358",
+    "name": "LAVERDA"
+  },
+  {
+    "code": "359",
+    "name": "LAZ"
+  },
+  {
+    "code": "360",
+    "name": "LDV"
+  },
+  {
+    "code": "361",
+    "name": "LECTRIX"
+  },
+  {
+    "code": "362",
+    "name": "LEHMAN TRIKES"
+  },
+  {
+    "code": "363",
+    "name": "LEM"
+  },
+  {
+    "code": "364",
+    "name": "LEONHARDT"
+  },
+  {
+    "code": "365",
+    "name": "LEXUS"
+  },
+  {
+    "code": "366",
+    "name": "LEYLAND"
+  },
+  {
+    "code": "367",
+    "name": "LIAZ"
+  },
+  {
+    "code": "368",
+    "name": "LIDER TRADE"
+  },
+  {
+    "code": "369",
+    "name": "LIEBHERR"
+  },
+  {
+    "code": "370",
+    "name": "LIFAN"
+  },
+  {
+    "code": "371",
+    "name": "LINCOLN"
+  },
+  {
+    "code": "372",
+    "name": "LINHAI"
+  },
+  {
+    "code": "373",
+    "name": "LINTRAILERS"
+  },
+  {
+    "code": "374",
+    "name": "LIUGONG"
+  },
+  {
+    "code": "375",
+    "name": "LML"
+  },
+  {
+    "code": "376",
+    "name": "LOCATELLI"
+  },
+  {
+    "code": "377",
+    "name": "LOHIA"
+  },
+  {
+    "code": "378",
+    "name": "LOHR"
+  },
+  {
+    "code": "379",
+    "name": "LONCIN"
+  },
+  {
+    "code": "380",
+    "name": "LONKING"
+  },
+  {
+    "code": "381",
+    "name": "LOTUS"
+  },
+  {
+    "code": "382",
+    "name": "LTI"
+  },
+  {
+    "code": "383",
+    "name": "LUAZ"
+  },
+  {
+    "code": "384",
+    "name": "LUNA"
+  },
+  {
+    "code": "385",
+    "name": "LUXGEN"
+  },
+  {
+    "code": "386",
+    "name": "LYNX"
+  },
+  {
+    "code": "387",
+    "name": "MACBOR"
+  },
+  {
+    "code": "388",
+    "name": "MACK"
+  },
+  {
+    "code": "389",
+    "name": "MAGIRUS"
+  },
+  {
+    "code": "390",
+    "name": "MAGNI"
+  },
+  {
+    "code": "391",
+    "name": "MAHINDRA"
+  },
+  {
+    "code": "392",
+    "name": "MAISONNEUVE"
+  },
+  {
+    "code": "393",
+    "name": "MALAGUTI"
+  },
+  {
+    "code": "394",
+    "name": "MAN"
+  },
+  {
+    "code": "395",
+    "name": "MANAC-AUTO"
+  },
+  {
+    "code": "396",
+    "name": "MANITOU"
+  },
+  {
+    "code": "397",
+    "name": "MARCOPOLO"
+  },
+  {
+    "code": "398",
+    "name": "MARCOS"
+  },
+  {
+    "code": "399",
+    "name": "MARINE TURBINE TECHNOLOGIES"
+  },
+  {
+    "code": "400",
+    "name": "MARLIN"
+  },
+  {
+    "code": "401",
+    "name": "MARUSSIA"
+  },
+  {
+    "code": "402",
+    "name": "MARUTI"
+  },
+  {
+    "code": "403",
+    "name": "MASERATI"
+  },
+  {
+    "code": "404",
+    "name": "MAVIZEN"
+  },
+  {
+    "code": "405",
+    "name": "MAYBACH"
+  },
+  {
+    "code": "406",
+    "name": "MAZ"
+  },
+  {
+    "code": "407",
+    "name": "MAZDA"
+  },
+  {
+    "code": "408",
+    "name": "MBK"
+  },
+  {
+    "code": "409",
+    "name": "MBS"
+  },
+  {
+    "code": "410",
+    "name": "MCLAREN"
+  },
+  {
+    "code": "411",
+    "name": "MEGA"
+  },
+  {
+    "code": "412",
+    "name": "MEGELLI"
+  },
+  {
+    "code": "413",
+    "name": "MEILLER"
+  },
+  {
+    "code": "414",
+    "name": "MENCI"
+  },
+  {
+    "code": "415",
+    "name": "MERCEDES-BENZ"
+  },
+  {
+    "code": "416",
+    "name": "MERCURY"
+  },
+  {
+    "code": "417",
+    "name": "MERLO"
+  },
+  {
+    "code": "418",
+    "name": "METISSE"
+  },
+  {
+    "code": "419",
+    "name": "METROCAB"
+  },
+  {
+    "code": "420",
+    "name": "METSAN"
+  },
+  {
+    "code": "421",
+    "name": "MEUSBURGER"
+  },
+  {
+    "code": "422",
+    "name": "MG"
+  },
+  {
+    "code": "423",
+    "name": "MIDUAL"
+  },
+  {
+    "code": "424",
+    "name": "MIKILON"
+  },
+  {
+    "code": "425",
+    "name": "MINELLI"
+  },
+  {
+    "code": "426",
+    "name": "MINI"
+  },
+  {
+    "code": "427",
+    "name": "MINSK"
+  },
+  {
+    "code": "428",
+    "name": "MISSION"
+  },
+  {
+    "code": "429",
+    "name": "MITSUBISHI"
+  },
+  {
+    "code": "430",
+    "name": "MITSUOKA"
+  },
+  {
+    "code": "431",
+    "name": "MODENAS"
+  },
+  {
+    "code": "432",
+    "name": "MONDIAL"
+  },
+  {
+    "code": "433",
+    "name": "MONTE CARLO"
+  },
+  {
+    "code": "434",
+    "name": "MONTESA"
+  },
+  {
+    "code": "435",
+    "name": "MONTRACON"
+  },
+  {
+    "code": "436",
+    "name": "MORGAN"
+  },
+  {
+    "code": "437",
+    "name": "MOSKVICH"
+  },
+  {
+    "code": "438",
+    "name": "MOTO GUZZI"
+  },
+  {
+    "code": "439",
+    "name": "MOTO MORINI"
+  },
+  {
+    "code": "440",
+    "name": "MOTOCZYSZ"
+  },
+  {
+    "code": "441",
+    "name": "MOTORHISPANIA"
+  },
+  {
+    "code": "442",
+    "name": "MUDAN"
+  },
+  {
+    "code": "443",
+    "name": "MULTICAR"
+  },
+  {
+    "code": "444",
+    "name": "MUZ"
+  },
+  {
+    "code": "445",
+    "name": "MV AGUSTA"
+  },
+  {
+    "code": "446",
+    "name": "MZKT"
+  },
+  {
+    "code": "447",
+    "name": "NARKO"
+  },
+  {
+    "code": "448",
+    "name": "NCR"
+  },
+  {
+    "code": "449",
+    "name": "NEANDER"
+  },
+  {
+    "code": "450",
+    "name": "NEOPLAN"
+  },
+  {
+    "code": "451",
+    "name": "NESS MOTORCYCLES"
+  },
+  {
+    "code": "452",
+    "name": "NEW HOLLAND"
+  },
+  {
+    "code": "453",
+    "name": "NEXUS MOTORS"
+  },
+  {
+    "code": "454",
+    "name": "NIPPONIA"
+  },
+  {
+    "code": "455",
+    "name": "NISSAN"
+  },
+  {
+    "code": "456",
+    "name": "NOBLE"
+  },
+  {
+    "code": "457",
+    "name": "NOOTEBOOM"
+  },
+  {
+    "code": "458",
+    "name": "NORDIC TANK"
+  },
+  {
+    "code": "459",
+    "name": "NORTON"
+  },
+  {
+    "code": "460",
+    "name": "NYSA"
+  },
+  {
+    "code": "461",
+    "name": "O&K"
+  },
+  {
+    "code": "462",
+    "name": "O.ME.P.S."
+  },
+  {
+    "code": "463",
+    "name": "OFF MECC"
+  },
+  {
+    "code": "464",
+    "name": "OLDSMOBILE"
+  },
+  {
+    "code": "465",
+    "name": "OLTCIT"
+  },
+  {
+    "code": "466",
+    "name": "OMT"
+  },
+  {
+    "code": "467",
+    "name": "OPEL"
+  },
+  {
+    "code": "468",
+    "name": "ORION"
+  },
+  {
+    "code": "469",
+    "name": "OSCA"
+  },
+  {
+    "code": "470",
+    "name": "OTOSAN"
+  },
+  {
+    "code": "471",
+    "name": "PACTON"
+  },
+  {
+    "code": "472",
+    "name": "PAGANI"
+  },
+  {
+    "code": "473",
+    "name": "PALFINGER"
+  },
+  {
+    "code": "474",
+    "name": "PANNONIA"
+  },
+  {
+    "code": "475",
+    "name": "PANOZ"
+  },
+  {
+    "code": "476",
+    "name": "PANTHER"
+  },
+  {
+    "code": "477",
+    "name": "PARCISA"
+  },
+  {
+    "code": "478",
+    "name": "PAYKAN"
+  },
+  {
+    "code": "479",
+    "name": "PAZ"
+  },
+  {
+    "code": "480",
+    "name": "PERAVES"
+  },
+  {
+    "code": "481",
+    "name": "PERODUA"
+  },
+  {
+    "code": "482",
+    "name": "PETERBILT"
+  },
+  {
+    "code": "483",
+    "name": "PEUGEOT"
+  },
+  {
+    "code": "484",
+    "name": "PGO"
+  },
+  {
+    "code": "485",
+    "name": "PIAGGIO"
+  },
+  {
+    "code": "486",
+    "name": "PITSTER PRO"
+  },
+  {
+    "code": "487",
+    "name": "PKW"
+  },
+  {
+    "code": "488",
+    "name": "PLYMOUTH"
+  },
+  {
+    "code": "489",
+    "name": "PNO"
+  },
+  {
+    "code": "490",
+    "name": "POLARIS"
+  },
+  {
+    "code": "491",
+    "name": "POLINI"
+  },
+  {
+    "code": "492",
+    "name": "POLONEZ"
+  },
+  {
+    "code": "493",
+    "name": "PONSSE"
+  },
+  {
+    "code": "494",
+    "name": "PONTIAC"
+  },
+  {
+    "code": "495",
+    "name": "PORSCHE"
+  },
+  {
+    "code": "496",
+    "name": "POWERCAT"
+  },
+  {
+    "code": "497",
+    "name": "PRAGA"
+  },
+  {
+    "code": "498",
+    "name": "PRC (PRO RACING CYCLES)"
+  },
+  {
+    "code": "499",
+    "name": "PCW (PRECISION CYCLE WORKS)"
+  },
+  {
+    "code": "500",
+    "name": "PREMIER"
+  },
+  {
+    "code": "501",
+    "name": "PRIM-BALL"
+  },
+  {
+    "code": "502",
+    "name": "PROTON"
+  },
+  {
+    "code": "503",
+    "name": "PUCH"
+  },
+  {
+    "code": "504",
+    "name": "PUMA"
+  },
+  {
+    "code": "505",
+    "name": "PUTZMEISTER"
+  },
+  {
+    "code": "506",
+    "name": "QINGQI"
+  },
+  {
+    "code": "507",
+    "name": "QLINK"
+  },
+  {
+    "code": "508",
+    "name": "QOROS"
+  },
+  {
+    "code": "509",
+    "name": "QUANTYA"
+  },
+  {
+    "code": "510",
+    "name": "QVALE"
+  },
+  {
+    "code": "511",
+    "name": "RAF"
+  },
+  {
+    "code": "512",
+    "name": "RANGE ROVER"
+  },
+  {
+    "code": "513",
+    "name": "RAVI PIAGGIO"
+  },
+  {
+    "code": "514",
+    "name": "RED WING"
+  },
+  {
+    "code": "515",
+    "name": "REDNECK"
+  },
+  {
+    "code": "516",
+    "name": "RELIANT"
+  },
+  {
+    "code": "517",
+    "name": "RENAISSANCE CARS"
+  },
+  {
+    "code": "518",
+    "name": "RENAULT"
+  },
+  {
+    "code": "519",
+    "name": "RENDERS"
+  },
+  {
+    "code": "520",
+    "name": "RESPO"
+  },
+  {
+    "code": "521",
+    "name": "RHINO"
+  },
+  {
+    "code": "522",
+    "name": "RIDLEY"
+  },
+  {
+    "code": "523",
+    "name": "RIEJU"
+  },
+  {
+    "code": "524",
+    "name": "RINSPEED"
+  },
+  {
+    "code": "525",
+    "name": "ROAD HOPPER"
+  },
+  {
+    "code": "526",
+    "name": "ROBUR"
+  },
+  {
+    "code": "527",
+    "name": "ROEHR"
+  },
+  {
+    "code": "528",
+    "name": "ROHR"
+  },
+  {
+    "code": "529",
+    "name": "ROKON"
+  },
+  {
+    "code": "530",
+    "name": "ROLFO"
+  },
+  {
+    "code": "531",
+    "name": "ROLLS-ROYCE"
+  },
+  {
+    "code": "532",
+    "name": "RONART"
+  },
+  {
+    "code": "533",
+    "name": "ROVER"
+  },
+  {
+    "code": "534",
+    "name": "ROYAL ENFIELD"
+  },
+  {
+    "code": "535",
+    "name": "RUCKER PERFORMANCE"
+  },
+  {
+    "code": "536",
+    "name": "SAAB"
+  },
+  {
+    "code": "537",
+    "name": "SACHS"
+  },
+  {
+    "code": "538",
+    "name": "SACIM"
+  },
+  {
+    "code": "539",
+    "name": "SALEEN"
+  },
+  {
+    "code": "540",
+    "name": "SAMRO"
+  },
+  {
+    "code": "541",
+    "name": "SAMSUNG"
+  },
+  {
+    "code": "542",
+    "name": "SAMURAI CHOPPER"
+  },
+  {
+    "code": "543",
+    "name": "SANGLAS"
+  },
+  {
+    "code": "544",
+    "name": "SANTANA"
+  },
+  {
+    "code": "545",
+    "name": "SANY"
+  },
+  {
+    "code": "546",
+    "name": "SARIS"
+  },
+  {
+    "code": "547",
+    "name": "SATURN"
+  },
+  {
+    "code": "548",
+    "name": "SAXON"
+  },
+  {
+    "code": "549",
+    "name": "SCANIA"
+  },
+  {
+    "code": "550",
+    "name": "SCHMITZ"
+  },
+  {
+    "code": "551",
+    "name": "SCHWARZMULLER"
+  },
+  {
+    "code": "552",
+    "name": "SCHWINN"
+  },
+  {
+    "code": "553",
+    "name": "SCION"
+  },
+  {
+    "code": "554",
+    "name": "SCORPA"
+  },
+  {
+    "code": "555",
+    "name": "SDLG"
+  },
+  {
+    "code": "556",
+    "name": "SEAT"
+  },
+  {
+    "code": "557",
+    "name": "SEAZ"
+  },
+  {
+    "code": "558",
+    "name": "SEM"
+  },
+  {
+    "code": "559",
+    "name": "SENKE"
+  },
+  {
+    "code": "560",
+    "name": "SETRA"
+  },
+  {
+    "code": "561",
+    "name": "SHAANXI"
+  },
+  {
+    "code": "562",
+    "name": "SHANTUI"
+  },
+  {
+    "code": "563",
+    "name": "SHELBY"
+  },
+  {
+    "code": "564",
+    "name": "SHENLONG"
+  },
+  {
+    "code": "565",
+    "name": "SHERCO"
+  },
+  {
+    "code": "566",
+    "name": "SHIFENG"
+  },
+  {
+    "code": "567",
+    "name": "SHOKEL"
+  },
+  {
+    "code": "568",
+    "name": "SHORELANDER"
+  },
+  {
+    "code": "569",
+    "name": "SHUANGHUAN"
+  },
+  {
+    "code": "570",
+    "name": "SINOMACH"
+  },
+  {
+    "code": "571",
+    "name": "SISU"
+  },
+  {
+    "code": "572",
+    "name": "SKI-DOO"
+  },
+  {
+    "code": "573",
+    "name": "SKIF"
+  },
+  {
+    "code": "574",
+    "name": "SKODA"
+  },
+  {
+    "code": "575",
+    "name": "SKYTEAM"
+  },
+  {
+    "code": "576",
+    "name": "SMA"
+  },
+  {
+    "code": "577",
+    "name": "SMART"
+  },
+  {
+    "code": "578",
+    "name": "SOKON"
+  },
+  {
+    "code": "579",
+    "name": "SOMMER"
+  },
+  {
+    "code": "580",
+    "name": "SOUEAST"
+  },
+  {
+    "code": "581",
+    "name": "SPECTRE"
+  },
+  {
+    "code": "582",
+    "name": "SPIER"
+  },
+  {
+    "code": "583",
+    "name": "SPYKER"
+  },
+  {
+    "code": "584",
+    "name": "SSANGYONG"
+  },
+  {
+    "code": "585",
+    "name": "STANDBIKE"
+  },
+  {
+    "code": "586",
+    "name": "STAS"
+  },
+  {
+    "code": "587",
+    "name": "STEELBEAR"
+  },
+  {
+    "code": "588",
+    "name": "STEINSBERGER"
+  },
+  {
+    "code": "589",
+    "name": "STELS"
+  },
+  {
+    "code": "590",
+    "name": "STEMA"
+  },
+  {
+    "code": "591",
+    "name": "STILL"
+  },
+  {
+    "code": "592",
+    "name": "SUBARU"
+  },
+  {
+    "code": "593",
+    "name": "SUCKER PUNCH SALLYS"
+  },
+  {
+    "code": "594",
+    "name": "SUKIDA"
+  },
+  {
+    "code": "595",
+    "name": "SUNDIRO"
+  },
+  {
+    "code": "596",
+    "name": "SUNLONG"
+  },
+  {
+    "code": "597",
+    "name": "SUPER MOTOR"
+  },
+  {
+    "code": "598",
+    "name": "SUZUKI"
+  },
+  {
+    "code": "599",
+    "name": "SYM"
+  },
+  {
+    "code": "600",
+    "name": "SYRENA"
+  },
+  {
+    "code": "601",
+    "name": "TADANO FAUN"
+  },
+  {
+    "code": "602",
+    "name": "TALBOT"
+  },
+  {
+    "code": "603",
+    "name": "TARPAN"
+  },
+  {
+    "code": "604",
+    "name": "TARSUS"
+  },
+  {
+    "code": "605",
+    "name": "TATA"
+  },
+  {
+    "code": "606",
+    "name": "TATRA"
+  },
+  {
+    "code": "607",
+    "name": "TAURAS"
+  },
+  {
+    "code": "608",
+    "name": "TAURIS"
+  },
+  {
+    "code": "609",
+    "name": "TAYO"
+  },
+  {
+    "code": "610",
+    "name": "TCM"
+  },
+  {
+    "code": "611",
+    "name": "TEMSA"
+  },
+  {
+    "code": "612",
+    "name": "TEREX"
+  },
+  {
+    "code": "613",
+    "name": "TERRA MODENA"
+  },
+  {
+    "code": "614",
+    "name": "TESLA"
+  },
+  {
+    "code": "615",
+    "name": "TGB"
+  },
+  {
+    "code": "616",
+    "name": "TIANMA"
+  },
+  {
+    "code": "617",
+    "name": "TIANYE"
+  },
+  {
+    "code": "618",
+    "name": "TIGER"
+  },
+  {
+    "code": "619",
+    "name": "TIKI TREILER"
+  },
+  {
+    "code": "620",
+    "name": "TIMBERJACK"
+  },
+  {
+    "code": "621",
+    "name": "TITAN"
+  },
+  {
+    "code": "622",
+    "name": "TM RACING"
+  },
+  {
+    "code": "623",
+    "name": "TOFAS"
+  },
+  {
+    "code": "624",
+    "name": "TOMBERLIN"
+  },
+  {
+    "code": "625",
+    "name": "TOMOS"
+  },
+  {
+    "code": "626",
+    "name": "TONAR"
+  },
+  {
+    "code": "627",
+    "name": "TORGAU"
+  },
+  {
+    "code": "628",
+    "name": "TOYOTA"
+  },
+  {
+    "code": "629",
+    "name": "TRABANT"
+  },
+  {
+    "code": "630",
+    "name": "TRACK"
+  },
+  {
+    "code": "631",
+    "name": "TRAIL KING"
+  },
+  {
+    "code": "632",
+    "name": "TRAILOR"
+  },
+  {
+    "code": "633",
+    "name": "TRAVERTSON"
+  },
+  {
+    "code": "634",
+    "name": "TRIUMPH"
+  },
+  {
+    "code": "635",
+    "name": "TROLL"
+  },
+  {
+    "code": "636",
+    "name": "TROLZA"
+  },
+  {
+    "code": "637",
+    "name": "TSR"
+  },
+  {
+    "code": "638",
+    "name": "TURBO'S HOET"
+  },
+  {
+    "code": "639",
+    "name": "TVR"
+  },
+  {
+    "code": "640",
+    "name": "TVS"
+  },
+  {
+    "code": "641",
+    "name": "UAZ"
+  },
+  {
+    "code": "642",
+    "name": "UDS"
+  },
+  {
+    "code": "643",
+    "name": "UM"
+  },
+  {
+    "code": "644",
+    "name": "UNIMOG"
+  },
+  {
+    "code": "645",
+    "name": "URAL"
+  },
+  {
+    "code": "646",
+    "name": "UTILITY"
+  },
+  {
+    "code": "647",
+    "name": "VALMET"
+  },
+  {
+    "code": "648",
+    "name": "VAN HOOL"
+  },
+  {
+    "code": "649",
+    "name": "VAN VEEN"
+  },
+  {
+    "code": "650",
+    "name": "VAUXHALL"
+  },
+  {
+    "code": "651",
+    "name": "VAZ"
+  },
+  {
+    "code": "652",
+    "name": "VECTOR"
+  },
+  {
+    "code": "653",
+    "name": "VECTRIX"
+  },
+  {
+    "code": "654",
+    "name": "VELI"
+  },
+  {
+    "code": "655",
+    "name": "VENTO"
+  },
+  {
+    "code": "656",
+    "name": "VENTURI"
+  },
+  {
+    "code": "657",
+    "name": "VESPA"
+  },
+  {
+    "code": "658",
+    "name": "VIBERTI"
+  },
+  {
+    "code": "659",
+    "name": "VIBROMAX"
+  },
+  {
+    "code": "660",
+    "name": "VICTORY"
+  },
+  {
+    "code": "661",
+    "name": "VIPER"
+  },
+  {
+    "code": "662",
+    "name": "VIS"
+  },
+  {
+    "code": "663",
+    "name": "VMZ"
+  },
+  {
+    "code": "664",
+    "name": "VOGELE"
+  },
+  {
+    "code": "665",
+    "name": "VOLKSWAGEN"
+  },
+  {
+    "code": "666",
+    "name": "VOLVO"
+  },
+  {
+    "code": "667",
+    "name": "VORTEX"
+  },
+  {
+    "code": "668",
+    "name": "VUKA"
+  },
+  {
+    "code": "669",
+    "name": "WABASH"
+  },
+  {
+    "code": "670",
+    "name": "WACKER"
+  },
+  {
+    "code": "671",
+    "name": "WAKAN"
+  },
+  {
+    "code": "672",
+    "name": "WARTBURG"
+  },
+  {
+    "code": "673",
+    "name": "WESTFIELD"
+  },
+  {
+    "code": "674",
+    "name": "WIELTON"
+  },
+  {
+    "code": "675",
+    "name": "WIESMANN"
+  },
+  {
+    "code": "676",
+    "name": "WILK"
+  },
+  {
+    "code": "677",
+    "name": "WILLIG"
+  },
+  {
+    "code": "678",
+    "name": "WIRTGEN"
+  },
+  {
+    "code": "679",
+    "name": "WITZCO"
+  },
+  {
+    "code": "680",
+    "name": "WT MOTORS"
+  },
+  {
+    "code": "681",
+    "name": "WULING"
+  },
+  {
+    "code": "682",
+    "name": "XCG"
+  },
+  {
+    "code": "683",
+    "name": "XCMG"
+  },
+  {
+    "code": "684",
+    "name": "XIN KAI"
+  },
+  {
+    "code": "685",
+    "name": "XINGYUE"
+  },
+  {
+    "code": "686",
+    "name": "XMOTOS"
+  },
+  {
+    "code": "687",
+    "name": "YAMAHA"
+  },
+  {
+    "code": "688",
+    "name": "YANMAR"
+  },
+  {
+    "code": "689",
+    "name": "YIBEN"
+  },
+  {
+    "code": "690",
+    "name": "YOBYKES"
+  },
+  {
+    "code": "691",
+    "name": "YORK"
+  },
+  {
+    "code": "692",
+    "name": "YUGO"
+  },
+  {
+    "code": "693",
+    "name": "YUTONG"
+  },
+  {
+    "code": "694",
+    "name": "ZANELLA"
+  },
+  {
+    "code": "695",
+    "name": "ZASLAW"
+  },
+  {
+    "code": "696",
+    "name": "ZASTAVA"
+  },
+  {
+    "code": "697",
+    "name": "ZAZ"
+  },
+  {
+    "code": "698",
+    "name": "ZENVO"
+  },
+  {
+    "code": "699",
+    "name": "ZEST"
+  },
+  {
+    "code": "700",
+    "name": "ZHONG TONG"
+  },
+  {
+    "code": "701",
+    "name": "ZIL"
+  },
+  {
+    "code": "702",
+    "name": "ZNEN"
+  },
+  {
+    "code": "703",
+    "name": "ZONDA"
+  },
+  {
+    "code": "704",
+    "name": "ZONGSHEN"
+  },
+  {
+    "code": "705",
+    "name": "ZOOMLION"
+  },
+  {
+    "code": "706",
+    "name": "ZUK"
+  },
+  {
+    "code": "707",
+    "name": "ZUNDAPP"
+  },
+  {
+    "code": "708",
+    "name": "ZX AUTO"
+  },
+  {
+    "code": "709",
+    "name": "АВТОМАСТЕР"
+  },
+  {
+    "code": "710",
+    "name": "АЛЬТЕРНА"
+  },
+  {
+    "code": "711",
+    "name": "АМКОДОР"
+  },
+  {
+    "code": "712",
+    "name": "БАЛТСПЕЦМАШ"
+  },
+  {
+    "code": "713",
+    "name": "БЕЛАРУС"
+  },
+  {
+    "code": "714",
+    "name": "БЕЦЕМА"
+  },
+  {
+    "code": "715",
+    "name": "БОГДАН-СПЕЦАВТОТЕХНИКА"
+  },
+  {
+    "code": "716",
+    "name": "ВЗТМ"
+  },
+  {
+    "code": "717",
+    "name": "ГК СОДРУЖЕСТВО"
+  },
+  {
+    "code": "718",
+    "name": "ГРАЗ"
+  },
+  {
+    "code": "719",
+    "name": "ДЕСНА"
+  },
+  {
+    "code": "720",
+    "name": "ДЗ"
+  },
+  {
+    "code": "721",
+    "name": "ДИЗЕЛЬ-ТС"
+  },
+  {
+    "code": "722",
+    "name": "ДУ"
+  },
+  {
+    "code": "723",
+    "name": "ИВАНОВЕЦ"
+  },
+  {
+    "code": "724",
+    "name": "КИРОВЕЦ"
+  },
+  {
+    "code": "725",
+    "name": "ЛТЗ"
+  },
+  {
+    "code": "726",
+    "name": "МАРЗ"
+  },
+  {
+    "code": "727",
+    "name": "МТЗ"
+  },
+  {
+    "code": "728",
+    "name": "НЕМАН"
+  },
+  {
+    "code": "729",
+    "name": "НЕФАЗ"
+  },
+  {
+    "code": "730",
+    "name": "ПК"
+  },
+  {
+    "code": "731",
+    "name": "ПТЗ"
+  },
+  {
+    "code": "732",
+    "name": "ПТК"
+  },
+  {
+    "code": "733",
+    "name": "РОАЗ"
+  },
+  {
+    "code": "734",
+    "name": "РУССКАЯ МЕХАНИКА"
+  },
+  {
+    "code": "735",
+    "name": "СЗАП"
+  },
+  {
+    "code": "736",
+    "name": "СПЕЦПРИЦЕП"
+  },
+  {
+    "code": "737",
+    "name": "ТАГАЗ"
+  },
+  {
+    "code": "738",
+    "name": "ТВЭКС"
+  },
+  {
+    "code": "739",
+    "name": "ТРАНСМАШ"
+  },
+  {
+    "code": "740",
+    "name": "ТУШИНО-АВТО"
+  },
+  {
+    "code": "741",
+    "name": "ЧСДМ"
+  },
+  {
+    "code": "742",
+    "name": "ЭО"
+  },
+  {
+    "code": "743",
+    "name": "KAIYI"
+  },
+  {
+    "code": "744",
+    "name": "ZEEKR"
+  },
+  {
+    "code": "745",
+    "name": "EXEED"
+  },
+  {
+    "code": "746",
+    "name": "BAIC"
+  },
+  {
+    "code": "747",
+    "name": "GAC"
+  },
+  {
+    "code": "748",
+    "name": "HAVAL"
+  },
+  {
+    "code": "749",
+    "name": "HONGQI"
+  },
+  {
+    "code": "750",
+    "name": "JAECOO"
+  },
+  {
+    "code": "751",
+    "name": "JETOUR"
+  },
+  {
+    "code": "752",
+    "name": "LI AUTO"
+  },
+  {
+    "code": "753",
+    "name": "LIVAN"
+  },
+  {
+    "code": "754",
+    "name": "OMODA"
+  },
+  {
+    "code": "755",
+    "name": "ORA"
+  },
+  {
+    "code": "756",
+    "name": "TANK"
+  },
+  {
+    "code": "757",
+    "name": "VGV"
+  },
+  {
+    "code": "758",
+    "name": "VOYAH"
+  },
+  {
+    "code": "759",
+    "name": "BORGWARD"
+  },
+  {
+    "code": "760",
+    "name": "DENZA"
+  },
+  {
+    "code": "761",
+    "name": "JMC"
+  },
+  {
+    "code": "762",
+    "name": "NSU"
+  },
+  {
+    "code": "763",
+    "name": "YTO"
+  },
+  {
+    "code": "764",
+    "name": "YUEJIN"
+  },
+  {
+    "code": "765",
+    "name": "ZOTYE"
+  },
+  {
+    "code": "766",
+    "name": "TADANO FAUN"
+  },
+  {
+    "code": "767",
+    "name": "AITO"
+  },
+  {
+    "code": "768",
+    "name": "AVATR"
+  },
+  {
+    "code": "769",
+    "name": "BAOJUN"
+  },
+  {
+    "code": "770",
+    "name": "CUPRA"
+  },
+  {
+    "code": "771",
+    "name": "DS"
+  },
+  {
+    "code": "772",
+    "name": "DUCATI"
+  },
+  {
+    "code": "773",
+    "name": "GENESIS"
+  },
+  {
+    "code": "774",
+    "name": "HIPHI"
+  },
+  {
+    "code": "775",
+    "name": "HOBBY"
+  },
+  {
+    "code": "776",
+    "name": "HOZON"
+  },
+  {
+    "code": "777",
+    "name": "HYMER"
+  },
+  {
+    "code": "778",
+    "name": "KNAUS"
+  },
+  {
+    "code": "779",
+    "name": "LEAPMOTOR"
+  },
+  {
+    "code": "780",
+    "name": "LYNK&CO"
+  },
+  {
+    "code": "781",
+    "name": "MENGSHI"
+  },
+  {
+    "code": "782",
+    "name": "NIO"
+  },
+  {
+    "code": "783",
+    "name": "POLAR STONE"
+  },
+  {
+    "code": "784",
+    "name": "POLESTAR"
+  },
+  {
+    "code": "785",
+    "name": "RAM"
+  },
+  {
+    "code": "786",
+    "name": "ROEWE"
+  },
+  {
+    "code": "787",
+    "name": "SERES"
+  },
+  {
+    "code": "788",
+    "name": "SHENLAN"
+  },
+  {
+    "code": "789",
+    "name": "SWIFT"
+  },
+  {
+    "code": "790",
+    "name": "WELTMEISTER (WEIMAR)"
+  },
+  {
+    "code": "791",
+    "name": "XPENG"
+  },
+  {
+    "code": "792",
+    "name": "YANGWANG"
+  },
+  {
+    "code": "999",
+    "name": "ПРОЧИЕ"
+  }
+]

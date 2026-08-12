@@ -3,18 +3,65 @@ from __future__ import annotations
 import cv2
 import numpy as np
 from PIL import Image, ImageOps
+import pymupdf
 
 from .models import QualityResult
 
 
-def decode_image(blob: bytes) -> np.ndarray:
-    if len(blob) > 12_000_000: raise ValueError("Файл больше лимита 12 МБ")
+MAX_FILE_BYTES = 12_000_000
+MAX_PIXELS = 30_000_000
+MAX_PDF_PAGES = 20
+
+
+def _render_pdf_pages(blob: bytes) -> list[Image.Image]:
+    """Render every PDF page at a resolution suitable for document OCR."""
     try:
-        pil = ImageOps.exif_transpose(Image.open(__import__("io").BytesIO(blob))).convert("RGB")
+        document = pymupdf.open(stream=blob, filetype="pdf")
+        if document.needs_pass:
+            raise ValueError("PDF защищён паролем")
+        if document.page_count == 0:
+            raise ValueError("PDF не содержит страниц")
+        if document.page_count > MAX_PDF_PAGES:
+            raise ValueError(f"PDF содержит больше {MAX_PDF_PAGES} страниц")
+        images = []
+        for page in document:
+            # 200 dpi keeps passport glyphs legible without exceeding the image cap
+            # for normal A4/Letter scans.
+            pixmap = page.get_pixmap(matrix=pymupdf.Matrix(200 / 72, 200 / 72), alpha=False)
+            if pixmap.width * pixmap.height > MAX_PIXELS:
+                raise ValueError("Страница PDF превышает лимит 30 Мп")
+            images.append(Image.frombytes("RGB", (pixmap.width, pixmap.height), pixmap.samples))
+        return images
+    except ValueError:
+        raise
     except Exception as exc:
-        raise ValueError("Не удалось декодировать изображение. Используйте JPEG или PNG.") from exc
-    if pil.width * pil.height > 30_000_000: raise ValueError("Изображение превышает лимит 30 Мп")
-    return cv2.cvtColor(np.array(pil), cv2.COLOR_RGB2BGR)
+        raise ValueError("Не удалось прочитать PDF. Загрузите корректный PDF без пароля.") from exc
+    finally:
+        if "document" in locals():
+            document.close()
+
+
+def decode_image(blob: bytes) -> np.ndarray:
+    return decode_document_pages(blob)[0]
+
+
+def decode_document_pages(blob: bytes) -> list[np.ndarray]:
+    """Decode an image or every page of a PDF into BGR images."""
+    if len(blob) > MAX_FILE_BYTES: raise ValueError("Файл больше лимита 12 МБ")
+    try:
+        if blob.lstrip().startswith(b"%PDF-"):
+            pages = _render_pdf_pages(blob)
+        else:
+            pages = [ImageOps.exif_transpose(Image.open(__import__("io").BytesIO(blob))).convert("RGB")]
+    except Exception as exc:
+        if isinstance(exc, ValueError):
+            raise
+        raise ValueError("Не удалось декодировать файл. Используйте JPEG, PNG или PDF.") from exc
+    decoded = []
+    for page in pages:
+        if page.width * page.height > MAX_PIXELS: raise ValueError("Изображение превышает лимит 30 Мп")
+        decoded.append(cv2.cvtColor(np.array(page), cv2.COLOR_RGB2BGR))
+    return decoded
 
 
 def quality(image: np.ndarray) -> QualityResult:
@@ -56,3 +103,14 @@ def mrz_variants(image: np.ndarray) -> list[np.ndarray]:
     gray = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray)
     binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 41, 13)
     return [crop, cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR), cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)]
+
+
+def name_region_variant(image: np.ndarray) -> np.ndarray:
+    """Upscale the visual identity band where short names are often missed."""
+    height, width = image.shape[:2]
+    crop = image[int(height * .24):int(height * .62), :]
+    target_width = min(2600, max(width, 2200))
+    scale = target_width / max(width, 1)
+    if scale > 1.02:
+        crop = cv2.resize(crop, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+    return crop

@@ -1,0 +1,6 @@
+model,model_label,file,dataset_id,country,status,decision_status,processing_ms,wall_ms,error,hit_document_number,hit_surname,hit_given_names,hit_nationality,hit_birth_date,hit_sex,hit_expiry_date,field_exact_count,field_total,field_exact_pct,mrz_line_exact_count,mrz_line_exact_pct,mrz_found,mrz_td3,mrz_required_valid,detected_objects,reason_codes
+marker,Marker OCR,CHN/CHN_001.jpg,CHN-001,CHN,error,error,0,173234,"SpawnError: llama-server binary not found. Install with:
+  macOS:  brew install llama.cpp
+  Linux:  brew install llama.cpp  OR download from
+          https://github.com/ggml-org/llama.cpp/releases
+Or set LLAMA_CPP_BINARY in your env to the binary path.",False,False,False,False,False,False,False,0,7,0.0,0,0.0,False,False,False,0,
