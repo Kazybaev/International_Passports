@@ -18,7 +18,7 @@ from pathlib import Path
 import pymupdf
 
 from passport_mvp.pipeline import run
-from passport_mvp.vehicle import extract_vehicle_fields, is_vehicle_document
+from passport_mvp.vehicle import extract_vehicle_records, is_vehicle_document
 
 PASSPORT_FIELDS = (
     "surname", "given_names", "birth_date", "sex", "nationality",
@@ -88,15 +88,15 @@ def _is_passport_page(lines: list[str], mrz_found: bool) -> bool:
     return mrz_found or any(marker in text for marker in markers)
 
 
-def _benchmark_file(path: Path, max_pages: int, engine: str) -> list[dict]:
+def _benchmark_file(path: Path, max_pages: int, verify: bool) -> list[dict]:
     rows = []
     blobs = _page_blobs(path, max_pages)
     if not blobs:
         raise ValueError("Document contains no pages")
     for page_index, blob in enumerate(blobs):
-        result = run(blob, "AUTO", engine)
-        vehicle = is_vehicle_document(result.full_text)
-        vehicle_data = extract_vehicle_fields(result.full_text, result.ocr_lines)
+        result = run(blob, "AUTO", verify=verify)
+        vehicle_records = extract_vehicle_records(result.full_text, result.ocr_lines)
+        vehicle = bool(vehicle_records) or is_vehicle_document(result.full_text)
         mrz_found = bool(result.mrz.get("lines"))
         passport = _is_passport_page(result.full_text, mrz_found)
         passport_presence = {
@@ -114,7 +114,8 @@ def _benchmark_file(path: Path, max_pages: int, engine: str) -> list[dict]:
         rows.append({
             "document_id": _safe_id(path), "page": page_index + 1,
             "vehicle_detected": vehicle, "passport_detected": passport,
-            "vehicle_field_presence": {key: bool(vehicle_data[key]) for key in VEHICLE_FIELDS},
+            "vehicle_documents": len(vehicle_records),
+            "vehicle_field_presence": {key: any(bool(record[key]) for record in vehicle_records) for key in VEHICLE_FIELDS},
             "passport_field_presence": passport_presence,
             "mrz_found": mrz_found, "mrz_format": result.mrz.get("format"),
             "mrz_checks_passed": sum(bool(value) for value in checks.values()),
@@ -125,17 +126,17 @@ def _benchmark_file(path: Path, max_pages: int, engine: str) -> list[dict]:
     return rows
 
 
-def _worker(path: Path, max_pages: int, engine: str, result_queue) -> None:
+def _worker(path: Path, max_pages: int, verify: bool, result_queue) -> None:
     try:
-        result_queue.put(("ok", _benchmark_file(path, max_pages, engine)))
+        result_queue.put(("ok", _benchmark_file(path, max_pages, verify)))
     except Exception as exc:
         result_queue.put((type(exc).__name__, []))
 
 
-def _benchmark_file_isolated(path: Path, max_pages: int, engine: str, timeout: int = 180) -> tuple[str, list[dict]]:
+def _benchmark_file_isolated(path: Path, max_pages: int, verify: bool, timeout: int = 180) -> tuple[str, list[dict]]:
     context = multiprocessing.get_context("spawn")
     result_queue = context.Queue()
-    process = context.Process(target=_worker, args=(path, max_pages, engine, result_queue))
+    process = context.Process(target=_worker, args=(path, max_pages, verify, result_queue))
     process.start()
     process.join(timeout)
     if process.is_alive():
@@ -148,13 +149,13 @@ def _benchmark_file_isolated(path: Path, max_pages: int, engine: str, timeout: i
         return f"NativeProcessExit{process.exitcode}", []
 
 
-def benchmark(root: Path, output: Path, limit: int | None, max_pages: int, engine: str) -> dict:
+def benchmark(root: Path, output: Path, limit: int | None, max_pages: int, verify: bool = True) -> dict:
     files = _select_files(root, limit)
     rows = []
     errors = Counter()
     started = time.perf_counter()
     for file_index, path in enumerate(files, 1):
-        status, file_rows = _benchmark_file_isolated(path, max_pages, engine)
+        status, file_rows = _benchmark_file_isolated(path, max_pages, verify)
         rows.extend(file_rows)
         if status != "ok":
             errors[status] += 1
@@ -168,9 +169,11 @@ def benchmark(root: Path, output: Path, limit: int | None, max_pages: int, engin
     passport_hits = {field: sum(row["passport_field_presence"][field] for row in passport_rows) for field in PASSPORT_FIELDS}
     summary = {
         "privacy": "No filenames, OCR text, or recognized field values are stored.",
-        "engine": engine, "files_selected": len(files), "pages_processed": len(rows),
+        "engine": "rapidocr", "verification_enabled": verify, "files_selected": len(files), "pages_processed": len(rows),
         "file_errors": sum(errors.values()), "error_types": dict(errors),
-        "vehicle_pages": len(vehicle_rows), "passport_pages": len(passport_rows),
+        "vehicle_pages": len(vehicle_rows),
+        "vehicle_documents": sum(row.get("vehicle_documents", 0) for row in vehicle_rows),
+        "passport_pages": len(passport_rows),
         "pages_with_both": sum(row["vehicle_detected"] and row["mrz_found"] for row in rows),
         "mrz_found_pct": _percent(sum(row["mrz_found"] for row in passport_rows), len(passport_rows)),
         "mrz_td3_pct": _percent(sum(row["mrz_format"] == "TD3" for row in passport_rows), len(passport_rows)),
@@ -195,6 +198,6 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=Path, default=Path("benchmark_results_real"))
     parser.add_argument("--limit", type=int)
     parser.add_argument("--max-pages", type=int, default=2)
-    parser.add_argument("--engine", default="rapidocr")
+    parser.add_argument("--no-verification", action="store_true")
     args = parser.parse_args()
-    print(json.dumps(benchmark(args.root, args.output, args.limit, args.max_pages, args.engine), ensure_ascii=False, indent=2))
+    print(json.dumps(benchmark(args.root, args.output, args.limit, args.max_pages, not args.no_verification), ensure_ascii=False, indent=2))

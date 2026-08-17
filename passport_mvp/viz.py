@@ -58,6 +58,14 @@ def _norm(text: str) -> str:
 _NORMALIZED_LABELS = {_norm(alias) for aliases in ALIASES.values() for alias in aliases}
 
 
+def _is_calendar_date(year: int, month: int, day: int) -> bool:
+    try:
+        datetime(year, month, day)
+        return True
+    except ValueError:
+        return False
+
+
 def _matched_alias(text: str, aliases: list[str]) -> str | None:
     """Match exact labels first, then tolerate a small OCR error in long labels."""
     normalized = _norm(text)
@@ -163,7 +171,20 @@ def _valid_candidate(field: str, text: str) -> bool:
     if field in {"personal_number", "tax_number"}:
         return 9 <= len(digits) <= 18 and len(digits) >= len(value.replace(" ", "").replace("-", "")) * .7
     if field in {"birth_date", "issue_date", "expiry_date"}:
-        return bool(re.search(r"\d{1,4}\D+\d{1,2}\D+\d{1,4}", value)) or bool(re.fullmatch(r"\d{6,8}", digits))
+        compact_date = re.sub(r"[ ./-]", "", value)
+        # Never turn an alphanumeric registration/model value such as
+        # `1.10569XCA` into a passport date merely because it contains digits.
+        if not compact_date.isdigit() or len(compact_date) not in {6, 8}:
+            return False
+        candidates = []
+        if len(compact_date) == 6:
+            candidates.append((2000 + int(compact_date[:2]), int(compact_date[2:4]), int(compact_date[4:6])))
+        else:
+            candidates.extend((
+                (int(compact_date[4:8]), int(compact_date[2:4]), int(compact_date[:2])),
+                (int(compact_date[:4]), int(compact_date[4:6]), int(compact_date[6:8])),
+            ))
+        return any(_is_calendar_date(*candidate) for candidate in candidates)
     if field == "sex":
         return _norm(value) in {"m", "f", "м", "ж", "male", "female", "муж", "жен", "erkak", "ayol", "e", "k"}
     if field in {"surname_viz", "given_names_viz", "patronymic", "birth_place", "issuing_authority", "issue_place"}:
@@ -237,7 +258,7 @@ _OCR_MONTHS = {
 _CHINESE_SURNAME_PREFIXES = tuple(sorted({
     "OUYANG", "SITU", "SIMA", "SHANGGUAN", "ZHUGE",
     "ZHANG", "WANG", "HUANG", "ZHOU", "ZHENG", "ZHAO", "ZHU", "ZHONG",
-    "CHEN", "CHENG", "DENG", "DONG", "FANG", "FENG", "GAO", "GONG",
+    "CHEN", "CHENG", "DENG", "DING", "DONG", "FANG", "FENG", "GAO", "GONG",
     "GUO", "HAN", "HE", "HU", "JIANG", "KONG", "LAI", "LEI", "LI",
     "LIANG", "LIAO", "LIN", "LIU", "LONG", "LU", "LUO", "MA", "MAO",
     "MENG", "PAN", "PENG", "QIAN", "QIN", "REN", "SHEN", "SHI", "SONG",

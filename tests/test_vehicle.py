@@ -1,4 +1,4 @@
-from passport_mvp.vehicle import extract_vehicle_fields, is_vehicle_document, vehicle_brands, vehicle_types
+from passport_mvp.vehicle import extract_vehicle_fields, extract_vehicle_records, is_vehicle_document, vehicle_brands, vehicle_types
 
 
 def test_vehicle_classifier_contains_complete_user_catalogue():
@@ -60,6 +60,14 @@ def test_chinese_vehicle_markers_and_common_types_are_supported():
     assert is_vehicle_document(["Vehicle License", "号牌号码"])
 
 
+def test_extracts_chinese_plate_after_intervening_vehicle_type_caption():
+    lines = ["号牌号码", "车辆类型", "重型半挂牵引车", "津CL6398"]
+
+    fields = extract_vehicle_fields(lines)
+
+    assert fields["registration_number"] == "津CL6398"
+
+
 def test_extracts_vin_to_the_right_of_chinese_label():
     rows = [
         {"text": "车辆识别代号", "box": [[10, 10], [100, 10], [100, 30], [10, 30]]},
@@ -75,3 +83,56 @@ def test_rejects_invalid_vin_letters_from_labeled_value():
     fields = extract_vehicle_fields(["VIN: LZZ5BIQD4HA123456"])
 
     assert fields["vin"] == ""
+
+
+def test_extracts_numbered_uzbek_vehicle_certificate_with_glued_ocr():
+    lines = [
+        "AVTOMOTOTRANSPORTVOSITASI", "RO'YXATDANO'TKAZILGANLIGI",
+        "TO'G'RISIDAGUVOHNOMAVEICLEUCENCE", "1.10569XCA",
+        "DAVLATRAQAMBELGISI", "2SHACMANSX4250XC4Q", "RUSUMI/MODELI",
+        "3.QIZILKRASNIY", "6.15.01.2025", "BERILGANSANASI",
+    ]
+
+    fields = extract_vehicle_fields(lines)
+
+    assert is_vehicle_document(lines)
+    assert fields["registration_number"] == "10569XCA"
+    assert fields["make_code"] == "561"
+    assert fields["make"] == "SHAANXI"
+    assert fields["model"] == "SHACMANSX4250XC4Q"
+    assert fields["registration_date"] == "15-01-2025"
+
+
+def test_uzbek_model_caption_does_not_become_single_letter_model():
+    fields = extract_vehicle_fields(["RUSUMI/MODELI", "M", "ANDIJAN REGION"])
+
+    assert fields["model"] == ""
+
+
+def test_extracts_two_chinese_vehicle_documents_without_mixing_fields():
+    lines = [
+        "中华人民共和国机动车行驶证",
+        "重型平板半挂车", "号牌号码", "津D8562挂", "车辆类型",
+        "品牌型号瑞郸牌YRD9409TPB", "车辆识别代号", "LA996RPC5MEYRD294",
+        "2021-07-14发证日期2025-06-64", "注册日期",
+        "中华人民共和国PEOPLE'SREPUBLICOFCHINA", "护照", "EP0983642",
+        "中华人民共和国机动车行驶证",
+        "号牌号码", "车辆类型", "重型半挂牵引车", "津CL6398",
+        "品牌型号", "豪瀚牌224255N3246E1", "车辆识别代号", "LZZPCLWB4MJ205479",
+        "2021-09-01发证日期", "注册日期",
+    ]
+
+    records = extract_vehicle_records(lines)
+
+    assert len(records) == 2
+    assert records[0]["registration_number"] == "津D8562挂"
+    assert records[0]["vin"] == "LA996RPC5MEYRD294"
+    assert records[0]["type_code"] == "319"
+    assert records[0]["model"] == "YRD9409TPB"
+    assert records[0]["registration_date"] == "2021-07-14"
+    assert records[1]["registration_number"] == "津CL6398"
+    assert records[1]["vin"] == "LZZPCLWB4MJ205479"
+    assert records[1]["type_code"] == "307"
+    assert records[1]["make"] == "HOWO"
+    assert records[1]["model"] == "224255N3246E1"
+    assert records[1]["registration_date"] == "2021-09-01"

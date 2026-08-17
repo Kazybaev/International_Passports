@@ -42,3 +42,19 @@ def test_recovers_core_fields_from_overlong_ocr_mrz():
     assert raw["document_number"] == "AA4564568"
     assert raw["birth_date"] == "1988-09-11"
     assert raw["document_type"] == "TD3"
+
+
+def test_pads_dropped_trailing_fillers_in_td3_name_row():
+    lines = normalize_lines([
+        "P<UZBSOLIEV<<SHOKHRUKH<BAKHROMJON<UGLI<<<<<",
+        "FA38395199UZB9501212M31091223210195130001820",
+    ])
+
+    parsed = parse_td3(lines)
+
+    assert len(lines[0]) == 44
+    assert parsed["surname"] == "SOLIEV"
+    assert parsed["given_names"] == "SHOKHRUKH BAKHROMJON UGLI"
+    assert parsed["nationality"] == "UZB"
+    assert parsed["birth_date"] == "1995-01-21"
+    assert parsed["expiry_date"] == "2031-09-12"

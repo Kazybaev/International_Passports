@@ -10,7 +10,6 @@ from .models import QualityResult
 
 MAX_FILE_BYTES = 12_000_000
 MAX_PIXELS = 30_000_000
-MAX_PDF_PAGES = 20
 
 
 def _render_pdf_pages(blob: bytes) -> list[Image.Image]:
@@ -21,8 +20,6 @@ def _render_pdf_pages(blob: bytes) -> list[Image.Image]:
             raise ValueError("PDF защищён паролем")
         if document.page_count == 0:
             raise ValueError("PDF не содержит страниц")
-        if document.page_count > MAX_PDF_PAGES:
-            raise ValueError(f"PDF содержит больше {MAX_PDF_PAGES} страниц")
         images = []
         for page in document:
             # 200 dpi keeps passport glyphs legible without exceeding the image cap
@@ -89,11 +86,20 @@ def normalize(image: np.ndarray) -> np.ndarray:
         scale = max_width / image.shape[1]
         image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
     elif image.shape[1] < 1400:
-        # RapidOCR loses MRZ glyphs on the 300–400 px thumbnails used by the
-        # benchmark. Cubic upscaling gives the recognizer enough character pixels.
+        # Small source thumbnails lose MRZ glyph detail. Cubic upscaling gives
+        # the local recognizer enough character pixels without inventing text.
         scale = 1400 / image.shape[1]
         image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
     return image
+
+
+def verification_variant(image: np.ndarray) -> np.ndarray:
+    """Build an independent, contrast-normalized page for the second OCR pass."""
+    lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    lightness, channel_a, channel_b = cv2.split(lab)
+    lightness = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(8, 8)).apply(lightness)
+    enhanced = cv2.cvtColor(cv2.merge((lightness, channel_a, channel_b)), cv2.COLOR_LAB2BGR)
+    return cv2.bilateralFilter(enhanced, 5, 30, 30)
 
 
 def mrz_variants(image: np.ndarray) -> list[np.ndarray]:

@@ -56,6 +56,20 @@ def test_reconciles_one_extra_mrz_letter_and_removes_glued_captions():
     assert data["holder"]["full_name"] == "DING QINGWEI"
 
 
+def test_visual_name_replaces_mrz_service_text_on_mixed_chinese_scan():
+    fields = {
+        "surname": field("ESREPUBLICOFCHINAREGISTERDAA", "mrz"),
+        "surname_viz": field("DING"),
+        "given_names_viz": field("QINGWEI"),
+    }
+
+    data = build_passport_data(fields, {"type": "TD3", "issuing_state": "CHN"})
+
+    assert data["holder"]["surname"] == "DING"
+    assert data["holder"]["given_names"] == "QINGWEI"
+    assert data["holder"]["full_name"] == "DING QINGWEI"
+
+
 def test_removes_glued_service_caption_even_without_visual_name():
     data = build_passport_data(
         {"given_names": field("QINGWEI ISSUE DATE", "mrz")},

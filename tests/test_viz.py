@@ -177,6 +177,17 @@ def test_infers_uzbek_15_digit_personal_identifier():
     assert fields["personal_number"].value == "328802792660010"
 
 
+def test_alphanumeric_vehicle_number_is_not_accepted_as_passport_birth_date():
+    objects = [
+        item("TUG'ILGAN SANASI / DATE OF BIRTH", 10, 10, 360, 35),
+        item("1.10569XCA", 10, 45, 180, 70),
+    ]
+
+    fields, _ = extract_viz(objects)
+
+    assert "birth_date" not in fields
+
+
 def test_infers_turkish_identity_card_without_reliable_labels():
     texts = [
         "TURKIYE CUMHURIYETI KIMLIK KARTI", "REPUBLIC OF TURKEY IDENTITY CARD",
@@ -250,6 +261,23 @@ def test_infers_chinese_passport_split_name_and_repairs_ocr_dates():
     mapping = audit_ocr_mapping(objects, fields)
     expiry_row = next(row for row in mapping if row["Распознанный объект"] == "159月/SEP2035")
     assert "expiry_date" in expiry_row["mapped_keys"]
+
+
+def test_infers_ding_qingwei_on_mixed_chinese_passport_vehicle_scan():
+    texts = [
+        "PASSPORT", "姓名/Name", "中华人民共和国机动车行驶证", "工庆伟",
+        "Vehicle License of the People's Republic of China", "DINGQINGWEI",
+        "号牌号码", "车辆类型", "重型半挂牵引车", "津CL6398",
+        "国/Nanonality", "出且期Daeofbirh",
+    ]
+    objects = [item(text, 10, index * 40, 700, index * 40 + 30) for index, text in enumerate(texts)]
+
+    fields, context = infer_visual_document(objects, {})
+
+    assert context == {"issuing_state": "CHN", "type": "PASSPORT"}
+    assert fields["surname_viz"].value == "DING"
+    assert fields["given_names_viz"].value == "QINGWEI"
+    assert fields["full_name"].value == "DING QINGWEI"
 
 
 def test_chinese_name_split_does_not_apply_without_passport_context():

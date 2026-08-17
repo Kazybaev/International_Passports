@@ -28,3 +28,6 @@ TUR/
 UZB/
 benchmark_comparison/
 benchmark_results_*/
+
+# Local document datasets may contain personal data
+dataset/

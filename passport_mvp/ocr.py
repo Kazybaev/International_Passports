@@ -1,213 +1,64 @@
 from __future__ import annotations
 
 import threading
-import os
-from pathlib import Path
 from typing import Any
 
-import cv2
 import numpy as np
 
-_ENGINES: dict[str, Any] = {}
-_LOCK = threading.Lock()
-
+ENGINE_KEY = "rapidocr"
 ENGINE_OPTIONS = {
-    "rapidocr": {
+    ENGINE_KEY: {
         "label": "RapidOCR ONNX",
-        "description": "Локальный быстрый базовый режим с координатами текстовых объектов.",
+        "description": "Единый локальный OCR-движок с повторной проверкой результата.",
         "manifest": "rapidocr_onnxruntime",
-    },
-    "replit": {
-        "label": "Replit OCR endpoint",
-        "description": "Внешний OCR-эндпоинт Replit. Нужен REPLIT_OCR_URL.",
-        "manifest": "replit_endpoint",
-    },
-    "paddleocr": {
-        "label": "PaddleOCR",
-        "description": "Локальный PP-OCR: более точный универсальный режим для паспортов и документов.",
-        "manifest": "PaddleOCR/PP-OCRv4",
-    },
-    "easyocr": {
-        "label": "EasyOCR",
-        "description": "Локальный независимый OCR на PyTorch; удобен для сверки результата PaddleOCR.",
-        "manifest": "JaidedAI/EasyOCR",
     },
 }
 
+_ENGINE: Any = None
+_LOCK = threading.Lock()
 
-def normalize_engine(name: str | None) -> str:
-    key = (name or "rapidocr").strip().lower().replace("-", "_")
-    aliases = {
-        "rapid": "rapidocr",
-        "rapid_ocr": "rapidocr",
-        "paddle": "paddleocr",
-        "easy": "easyocr",
+
+def engine_metadata() -> dict[str, Any]:
+    option = ENGINE_OPTIONS[ENGINE_KEY]
+    return {
+        "engine": option["manifest"],
+        "engine_key": ENGINE_KEY,
+        "engine_label": option["label"],
     }
-    key = aliases.get(key, key)
-    if key not in ENGINE_OPTIONS:
-        raise ValueError(f"Неизвестная OCR-модель: {name}")
-    return key
 
 
-def replit_endpoint_configured() -> bool:
-    return bool(os.environ.get("REPLIT_OCR_URL", "").strip())
-
-
-def resolve_engine(name: str | None) -> str:
-    """Return a runnable engine, falling back from an unconfigured endpoint."""
-    key = normalize_engine(name)
-    return "rapidocr" if key == "replit" and not replit_endpoint_configured() else key
-
-
-def engine_metadata(name: str | None) -> dict[str, Any]:
-    key = normalize_engine(name)
-    option = ENGINE_OPTIONS[key]
-    return {"engine": option["manifest"], "engine_key": key, "engine_label": option["label"]}
-
-
-def _model_cache_dir(engine_name: str) -> Path:
-    """Keep downloaded OCR weights out of an unwritable service home directory."""
-    root = Path(os.environ.get("OCR_MODEL_CACHE_DIR", Path.cwd() / "artifacts" / "ocr-models"))
-    target = root / engine_name
-    target.mkdir(parents=True, exist_ok=True)
-    return target
-
-
-def engine(name: str | None = None):
-    key = normalize_engine(name)
+def engine():
+    """Lazily initialize the only OCR model once per process."""
+    global _ENGINE
     with _LOCK:
-        if key in _ENGINES:
-            return _ENGINES[key]
-        if key == "rapidocr":
+        if _ENGINE is None:
             from rapidocr_onnxruntime import RapidOCR
 
-            _ENGINES[key] = RapidOCR(det_use_dml=False, cls_use_dml=False, rec_use_dml=False)
-            return _ENGINES[key]
-        if key == "paddleocr":
-            # PaddleX reads this setting during its import, so set it first.
-            os.environ.setdefault("PADDLE_PDX_CACHE_HOME", str(_model_cache_dir(key)))
-            try:
-                from paddleocr import PaddleOCR
-            except ImportError as exc:
-                raise RuntimeError("PaddleOCR не установлен. Выполните: pip install -r requirements.txt") from exc
-            try:
-                # PaddleOCR 2.x API (the version pinned in requirements).
-                _ENGINES[key] = PaddleOCR(lang="en", use_angle_cls=True, show_log=False)
-            except (TypeError, ValueError):
-                # PaddleOCR 3.x removed show_log/use_angle_cls. Keep a useful
-                # fallback for deployments that already have 3.x installed.
-                _ENGINES[key] = PaddleOCR(lang="en")
-            return _ENGINES[key]
-        if key == "easyocr":
-            try:
-                import easyocr
-            except ImportError as exc:
-                raise RuntimeError("EasyOCR не установлен. Выполните: pip install -r requirements.txt") from exc
-            cache_dir = _model_cache_dir(key)
-            _ENGINES[key] = easyocr.Reader(
-                ["en"],
-                gpu=False,
-                verbose=False,
-                model_storage_directory=str(cache_dir),
-                user_network_directory=str(cache_dir / "user_network"),
-            )
-            return _ENGINES[key]
-    if key == "replit":
-        return _replit_recognize
-    raise ValueError(f"Неизвестная OCR-модель: {name}")
+            _ENGINE = RapidOCR(det_use_dml=False, cls_use_dml=False, rec_use_dml=False)
+        return _ENGINE
 
 
-def _text_to_rows(text: str, width: int, height: int, score: float = .7) -> list[dict[str, Any]]:
-    lines = [line.strip() for line in text.splitlines() if line.strip()]
-    if not lines:
-        return []
-    step = max(18, height // max(len(lines) + 1, 2))
-    output = []
-    for index, line in enumerate(lines, 1):
-        y1 = min(height - 2, index * step)
-        y2 = min(height - 1, y1 + max(14, step // 2))
-        x2 = max(2, min(width - 1, int(width * min(.96, max(.18, len(line) / 70)))))
-        output.append({"box": [[1, y1], [x2, y1], [x2, y2], [1, y2]], "text": line, "score": score})
-    return output
-
-
-def _paddleocr_rows(image: np.ndarray) -> list[dict[str, Any]]:
-    """Normalize PaddleOCR's page/line output to the app's common row schema."""
-    model = engine("paddleocr")
-    if not hasattr(model, "ocr"):
-        output = []
-        for page in model.predict(image):
-            for box, text, score in zip(page["rec_polys"], page["rec_texts"], page["rec_scores"]):
-                output.append({"box": np.asarray(box).tolist(), "text": str(text), "score": float(score)})
-        return output
-
-    pages = model.ocr(image, cls=True)
-    output = []
-    for page in pages or []:
-        for line in page or []:
-            box, result = line
-            text, score = result
-            output.append({"box": box, "text": str(text), "score": float(score)})
-    return output
-
-
-def _easyocr_rows(image: np.ndarray) -> list[dict[str, Any]]:
-    rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    result = engine("easyocr").readtext(rgb, detail=1, paragraph=False)
-    return [
-        {"box": box, "text": str(text), "score": float(score)}
-        for box, text, score in result
-    ]
-
-
-def _replit_recognize(image: np.ndarray) -> list[dict[str, Any]]:
-    url = os.environ.get("REPLIT_OCR_URL")
-    if not url:
-        # Direct callers receive the same safe behaviour as the pipeline.
-        return _rapidocr_rows(image)
-    try:
-        import requests
-    except ImportError as exc:
-        raise RuntimeError("Для Replit OCR нужен пакет requests.") from exc
-
-    ok, encoded = cv2.imencode(".png", image)
-    if not ok:
-        raise RuntimeError("Не удалось подготовить изображение для Replit OCR.")
-    response = requests.post(url, files={"file": ("passport.png", encoded.tobytes(), "image/png")}, timeout=120)
-    response.raise_for_status()
-    payload = response.json()
-    if isinstance(payload, dict) and isinstance(payload.get("items"), list):
-        return payload["items"]
-    if isinstance(payload, dict) and isinstance(payload.get("text"), str):
-        return _text_to_rows(payload["text"], image.shape[1], image.shape[0], .65)
-    raise RuntimeError("Replit OCR вернул неподдерживаемый формат. Нужен JSON с items или text.")
-
-
-def recognize(image: np.ndarray, model: str | None = None) -> list[dict[str, Any]]:
-    key = normalize_engine(model)
-    if key == "paddleocr":
-        output = _paddleocr_rows(image)
-        output.sort(key=lambda x: min(p[1] for p in x["box"]))
-        return output
-    if key == "easyocr":
-        output = _easyocr_rows(image)
-        output.sort(key=lambda x: min(p[1] for p in x["box"]))
-        return output
-    if key != "rapidocr":
-        output = engine(key)(image)
-        output.sort(key=lambda x: min(p[1] for p in x["box"]))
-        return output
-    return _rapidocr_rows(image)
-
-
-def _rapidocr_rows(image: np.ndarray) -> list[dict[str, Any]]:
-    result, _ = engine("rapidocr")(image)
-    output = []
+def recognize(image: np.ndarray, *, pass_name: str = "primary") -> list[dict[str, Any]]:
+    """Run local RapidOCR and normalize its output for the extraction pipeline."""
+    del pass_name  # Used by the pipeline for provenance; RapidOCR needs only the image.
+    result, _ = engine()(image)
+    rows = []
     for item in result or []:
+        if not isinstance(item, (list, tuple)) or len(item) != 3:
+            continue
         box, text, score = item
-        output.append({"box": box, "text": text, "score": float(score)})
-    output.sort(key=lambda x: min(p[1] for p in x["box"]))
-    return output
+        if not str(text).strip():
+            continue
+        try:
+            points = [[float(point[0]), float(point[1])] for point in box]
+            confidence = min(1.0, max(0.0, float(score)))
+        except (TypeError, ValueError, IndexError):
+            continue
+        if len(points) != 4:
+            continue
+        rows.append({"box": points, "text": str(text).strip(), "score": confidence})
+    rows.sort(key=lambda row: (min(point[1] for point in row["box"]), min(point[0] for point in row["box"])))
+    return rows
 
 
 def join_visual_lines(items: list[dict[str, Any]]) -> list[dict[str, Any]]:

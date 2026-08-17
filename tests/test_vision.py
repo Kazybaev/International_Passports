@@ -1,7 +1,7 @@
 import numpy as np
 import pymupdf
 
-from passport_mvp.vision import decode_document_pages, decode_image, name_region_variant, normalize
+from passport_mvp.vision import decode_document_pages, decode_image, name_region_variant, normalize, verification_variant
 
 
 def test_normalize_preserves_portrait_orientation_and_upscales():
@@ -26,6 +26,15 @@ def test_name_region_variant_crops_and_upscales_identity_band():
     assert 580 < result.shape[0] < 620
 
 
+def test_verification_variant_preserves_page_geometry():
+    image = np.full((200, 300, 3), 120, dtype=np.uint8)
+
+    result = verification_variant(image)
+
+    assert result.shape == image.shape
+    assert result.dtype == np.uint8
+
+
 def test_decode_image_renders_first_pdf_page():
     document = pymupdf.open()
     first = document.new_page(width=144, height=216)
@@ -48,3 +57,14 @@ def test_decode_document_pages_renders_every_pdf_page():
     document.close()
 
     assert [page.shape[:2] for page in pages] == [(600, 400), (400, 600)]
+
+
+def test_decode_document_pages_has_no_page_count_limit():
+    document = pymupdf.open()
+    for _ in range(21):
+        document.new_page(width=72, height=72)
+
+    pages = decode_document_pages(document.tobytes())
+    document.close()
+
+    assert len(pages) == 21

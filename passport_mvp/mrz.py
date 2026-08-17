@@ -28,6 +28,14 @@ def clean_line(value: str) -> str:
 def normalize_lines(lines: list[str]) -> list[str]:
     cleaned = [clean_line(x) for x in lines if len(clean_line(x)) >= 20]
     exact = [x for x in cleaned if len(x) == 44]
+    # OCR frequently drops trailing `<` fillers from the TD3 name row. Padding
+    # only a passport row at the right edge is lossless: these positions carry
+    # no data and the 44-character data row remains strict.
+    data_line = next((line for line in reversed(exact) if not line.startswith("P")), None)
+    short_passport = next((line for line in reversed(cleaned)
+                           if line.startswith("P") and 35 <= len(line) < 44), None)
+    if data_line and short_passport:
+        return [short_passport.ljust(44, "<"), data_line]
     if len(exact) >= 2:
         selected = exact[-2:]
         passport_line = next((line for line in selected if line.startswith("P")), None)

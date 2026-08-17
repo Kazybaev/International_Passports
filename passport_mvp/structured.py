@@ -30,7 +30,8 @@ def _evidence(fields: dict[str, FieldResult]) -> dict[str, dict[str, Any]]:
 
 _NAME_SERVICE_TAIL = re.compile(
     r"(?i)(?:\b|(?<=[A-Z]))(?:"
-    r"REGISTER(?:ED|ATION)?\s*DA(?:T|L)E|"
+    r"REGISTER(?:ED|ATION)?\s*DA(?:T|L|A)[A-Z]*|"
+    r"REPUBLIC\s*OF\s*(?:CHINA|[A-Z]+)|VEHICLE\s*LICEN[CS]E|"
     r"ISSUE\s*DA(?:T|L)E|DATE\s*OF\s*ISSUE|"
     r"DATE\s*OF\s*BIRTH|NATIONALITY|SEX|GENDER|"
     r"BEARER(?:'S)?\s*SIGNATURE|HOLDER(?:'S)?\s*SIGNATURE|SIGNATURE|"
@@ -55,9 +56,15 @@ def _identity_name(fields: dict[str, FieldResult], mrz_key: str, viz_key: str, b
     """Choose a name by agreement of independent MRZ and visual OCR sources."""
     mrz_field = fields.get(mrz_key)
     viz_field = fields.get(viz_key)
-    mrz_value = _clean_person_name(str(mrz_field.value) if mrz_field and mrz_field.value else None)
-    viz_value = _clean_person_name(str(viz_field.value) if viz_field and viz_field.value else None)
+    mrz_raw = str(mrz_field.value) if mrz_field and mrz_field.value else None
+    viz_raw = str(viz_field.value) if viz_field and viz_field.value else None
+    mrz_has_service_text = bool(mrz_raw and _NAME_SERVICE_TAIL.search(mrz_raw))
+    viz_has_service_text = bool(viz_raw and _NAME_SERVICE_TAIL.search(viz_raw))
+    mrz_value = _clean_person_name(mrz_raw)
+    viz_value = _clean_person_name(viz_raw)
     if mrz_value and viz_value:
+        if mrz_has_service_text != viz_has_service_text:
+            return viz_value if mrz_has_service_text else mrz_value
         mrz_compact = re.sub(r"[^A-ZА-ЯЁ]", "", mrz_value.upper())
         viz_compact = re.sub(r"[^A-ZА-ЯЁ]", "", viz_value.upper())
         mrz_has_invalid = bool(re.search(r"[^A-ZА-ЯЁ '\-]", mrz_value.upper()))
